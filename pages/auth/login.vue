@@ -1,8 +1,8 @@
 <template>
   <div class="form-container">
     <div class="form-card">
-      <h1 class="form-title">Connexion Admin</h1>
-      <p class="form-subtitle">Accédez à votre espace d'administration</p>
+      <h1 class="form-title">Admin Login</h1>
+      <p class="form-subtitle">Access your administration area</p>
 
       <form @submit.prevent="handleLogin">
         <!-- Email -->
@@ -15,14 +15,14 @@
             type="email"
             required
             class="form-input"
-            placeholder="votre@email.com"
+            placeholder="your@email.com"
           />
         </div>
 
-        <!-- Mot de passe -->
+        <!-- Password -->
         <div class="form-group">
           <label class="form-label">
-            Mot de passe
+            Password
           </label>
           <input
             v-model="password"
@@ -33,28 +33,28 @@
           />
         </div>
 
-        <!-- Message d'erreur -->
+        <!-- Error message -->
         <div v-if="error" class="form-error">
           {{ error }}
         </div>
 
-        <!-- Bouton de connexion -->
+        <!-- Login button -->
         <button
           type="submit"
           class="form-button"
           :disabled="loading"
         >
-          <span v-if="loading">Connexion en cours...</span>
-          <span v-else>Se connecter</span>
+          <span v-if="loading">Logging in...</span>
+          <span v-else>Login</span>
         </button>
       </form>
 
-      <!-- Lien de retour -->
+      <!-- Back link -->
       <NuxtLink 
         to="/" 
         class="form-link"
       >
-        Retour à l'accueil
+        Back to Home
       </NuxtLink>
     </div>
   </div>
@@ -80,10 +80,10 @@ async function handleLogin() {
     if (user) {
       await router.push('/admin')
     } else {
-      error.value = 'Erreur lors de la connexion'
+      error.value = 'Login error'
     }
   } catch (e: any) {
-    error.value = e.message || 'Une erreur est survenue'
+    error.value = e.message || 'An error occurred'
   } finally {
     loading.value = false
   }

@@ -6,7 +6,7 @@
         Wiki XIV
       </h1>
       <p class="text-xl text-gray-300 mb-16 leading-relaxed">
-        Votre plateforme de documentation moderne et intuitive. Explorez notre base de connaissances et restez informé.
+        Your modern and intuitive documentation platform. Explore our knowledge base and stay informed.
       </p>
       
       <!-- Call to Action -->
@@ -15,7 +15,7 @@
           to="/auth/login"
           class="button button-primary px-8 py-4"
         >
-          Accéder à l'administration
+          Access Administration
         </NuxtLink>
       </div>
     </div>
@@ -27,15 +27,15 @@
           <span class="text-blue-400 mr-2">📚</span>
           Documentation
         </h3>
-        <p class="text-gray-400">Accédez à une documentation complète et structurée</p>
+        <p class="text-gray-400">Access comprehensive and structured documentation</p>
       </div>
       
       <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
         <h3 class="text-xl font-semibold mb-2">
           <span class="text-blue-400 mr-2">🔍</span>
-          Recherche
+          Search
         </h3>
-        <p class="text-gray-400">Trouvez rapidement les informations dont vous avez besoin</p>
+        <p class="text-gray-400">Quickly find the information you need</p>
       </div>
       
       <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
@@ -43,7 +43,7 @@
           <span class="text-blue-400 mr-2">✨</span>
           Interface
         </h3>
-        <p class="text-gray-400">Une expérience utilisateur moderne et intuitive</p>
+        <p class="text-gray-400">A modern and intuitive user experience</p>
       </div>
     </div>
   </div>
