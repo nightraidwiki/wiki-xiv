@@ -6,21 +6,29 @@
       </template>
       <template #right>
         <UButton
-          v-if="!isLoggedIn"
+          v-if="!user"
           to="/auth/login"
           color="primary"
           variant="solid"
         >
           Se connecter
         </UButton>
-        <UButton
-          v-else
-          to="/admin"
-          color="primary"
-          variant="solid"
-        >
-          Dashboard
-        </UButton>
+        <div v-else class="flex items-center gap-4">
+          <UButton
+            to="/admin"
+            color="primary"
+            variant="solid"
+          >
+            Dashboard
+          </UButton>
+          <UButton
+            color="primary"
+            variant="soft"
+            @click="handleLogout"
+          >
+            Déconnexion
+          </UButton>
+        </div>
       </template>
     </UHeader>
 
@@ -37,5 +45,29 @@
 </template>
 
 <script setup lang="ts">
-const isLoggedIn = ref(false) // À remplacer par la logique d'authentification
+import { useSupabase } from '~/composables/useSupabase'
+import type { User } from '@supabase/supabase-js'
+
+const router = useRouter()
+const user = ref<User | null>(null)
+const { getCurrentUser, signOut } = useSupabase()
+
+// Vérifier l'état de connexion au chargement
+onMounted(async () => {
+  try {
+    user.value = await getCurrentUser()
+  } catch (error) {
+    console.error('Error checking auth state:', error)
+  }
+})
+
+const handleLogout = async () => {
+  try {
+    await signOut()
+    user.value = null
+    router.push('/')
+  } catch (error) {
+    console.error('Error signing out:', error)
+  }
+}
 </script> 

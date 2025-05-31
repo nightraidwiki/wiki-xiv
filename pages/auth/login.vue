@@ -24,6 +24,10 @@
           />
         </UFormGroup>
 
+        <div v-if="error" class="text-red-500 text-sm">
+          {{ error }}
+        </div>
+
         <UButton
           type="submit"
           color="primary"
@@ -38,17 +42,26 @@
 </template>
 
 <script setup lang="ts">
+import { useSupabase } from '~/composables/useSupabase'
+
+const router = useRouter()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
+const error = ref('')
+
+const { signIn } = useSupabase()
 
 const handleLogin = async () => {
   loading.value = true
+  error.value = ''
+  
   try {
-    // TODO: Implémenter la logique de connexion avec Supabase
-    console.log('Login attempt:', { email: email.value, password: password.value })
-  } catch (error) {
-    console.error('Login error:', error)
+    await signIn(email.value, password.value)
+    // Redirection vers le dashboard après connexion réussie
+    router.push('/admin')
+  } catch (e: any) {
+    error.value = e.message || 'Une erreur est survenue lors de la connexion'
   } finally {
     loading.value = false
   }
