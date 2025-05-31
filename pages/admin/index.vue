@@ -1,97 +1,42 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">Dashboard</h1>
-      <UButton
-        to="/admin/articles/new"
-        color="primary"
-        icon="i-heroicons-plus"
-      >
-        Nouvel article
-      </UButton>
-    </div>
+  <div class="min-h-screen bg-gray-900 text-white">
+    <div class="container mx-auto px-4 py-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-blue-400">Tableau de bord Admin</h1>
+        <button
+          @click="handleLogout"
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-200"
+        >
+          Déconnexion
+        </button>
+      </div>
 
-    <!-- Tableau des articles -->
-    <UCard>
-      <template #header>
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold">Articles</h2>
-          <UInput
-            v-model="search"
-            icon="i-heroicons-magnifying-glass"
-            placeholder="Rechercher..."
-            class="max-w-xs"
-          />
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Carte de statistiques -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+          <h3 class="text-xl font-semibold mb-4">Bienvenue</h3>
+          <p class="text-gray-300">
+            {{ currentUser?.email }}
+          </p>
         </div>
-      </template>
-
-      <UTable
-        :columns="columns"
-        :rows="articles"
-        :search="search"
-      >
-        <template #visible-data="{ row }">
-          <UToggle v-model="row.visible" />
-        </template>
-
-        <template #actions-data="{ row }">
-          <UButton
-            :to="'/admin/articles/' + row.id"
-            color="primary"
-            variant="ghost"
-            icon="i-heroicons-pencil-square"
-          />
-          <UButton
-            color="red"
-            variant="ghost"
-            icon="i-heroicons-trash"
-            @click="deleteArticle(row.id)"
-          />
-        </template>
-      </UTable>
-    </UCard>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const search = ref('')
+import { useSupabase } from '~/composables/useSupabase'
 
-const columns = [
-  {
-    key: 'title',
-    label: 'Titre'
-  },
-  {
-    key: 'category',
-    label: 'Catégorie'
-  },
-  {
-    key: 'visible',
-    label: 'Visible'
-  },
-  {
-    key: 'updated_at',
-    label: 'Dernière modification'
-  },
-  {
-    key: 'actions',
-    label: 'Actions'
+const router = useRouter()
+const { signOut, getCurrentUser } = useSupabase()
+const currentUser = ref(await getCurrentUser())
+
+async function handleLogout() {
+  try {
+    await signOut()
+    await router.push('/')
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error)
   }
-]
-
-const articles = ref([
-  {
-    id: 1,
-    title: 'Premier article',
-    category: 'Guides',
-    visible: true,
-    updated_at: '2024-03-20'
-  },
-  // Ajoutez d'autres articles pour tester
-])
-
-const deleteArticle = async (id: number) => {
-  // TODO: Implémenter la suppression avec Supabase
-  console.log('Deleting article:', id)
 }
 </script> 
