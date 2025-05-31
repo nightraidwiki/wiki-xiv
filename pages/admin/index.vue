@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-bold text-blue-400">Tableau de bord Admin</h1>
         <button
           @click="handleLogout"
-          class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-200"
+          class="button-danger"
         >
           Déconnexion
         </button>

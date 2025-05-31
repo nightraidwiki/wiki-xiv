@@ -1,75 +1,60 @@
 <template>
-  <div>
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-4xl font-bold mb-8">Articles</h1>
+  <div class="min-h-[calc(100vh-16rem)] flex flex-col items-center justify-center text-center px-4">
+    <!-- Hero Section -->
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-text">
+        Wiki XIV
+      </h1>
+      <p class="text-xl text-gray-300 mb-16 leading-relaxed">
+        Votre plateforme de documentation moderne et intuitive. Explorez notre base de connaissances et restez informé.
+      </p>
       
-      <!-- Filtres de catégories -->
-      <div class="mb-8">
-        <USelect
-          v-model="selectedCategory"
-          :options="categories"
-          placeholder="Filtrer par catégorie"
-          class="max-w-xs"
-        />
-      </div>
-
-      <!-- Liste des articles -->
-      <div class="space-y-6">
-        <UCard
-          v-for="article in articles"
-          :key="article.id"
-          :ui="{ body: { padding: 'p-6' } }"
+      <!-- Call to Action -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-32">
+        <NuxtLink 
+          to="/auth/login"
+          class="button button-primary px-8 py-4"
         >
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h2 class="text-xl font-semibold">{{ article.title }}</h2>
-              <UBadge :color="article.category.color">
-                {{ article.category.name }}
-              </UBadge>
-            </div>
-          </template>
+          Accéder à l'administration
+        </NuxtLink>
+      </div>
+    </div>
 
-          <p class="text-gray-600 line-clamp-3">{{ article.excerpt }}</p>
-
-          <template #footer>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-500">
-                Publié le {{ new Date(article.published_at).toLocaleDateString() }}
-              </span>
-              <UButton
-                :to="'/articles/' + article.id"
-                color="primary"
-                variant="soft"
-              >
-                Lire la suite
-              </UButton>
-            </div>
-          </template>
-        </UCard>
+    <!-- Features -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+      <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
+        <h3 class="text-xl font-semibold mb-2">
+          <span class="text-blue-400 mr-2">📚</span>
+          Documentation
+        </h3>
+        <p class="text-gray-400">Accédez à une documentation complète et structurée</p>
+      </div>
+      
+      <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
+        <h3 class="text-xl font-semibold mb-2">
+          <span class="text-blue-400 mr-2">🔍</span>
+          Recherche
+        </h3>
+        <p class="text-gray-400">Trouvez rapidement les informations dont vous avez besoin</p>
+      </div>
+      
+      <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
+        <h3 class="text-xl font-semibold mb-2">
+          <span class="text-blue-400 mr-2">✨</span>
+          Interface
+        </h3>
+        <p class="text-gray-400">Une expérience utilisateur moderne et intuitive</p>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-const selectedCategory = ref('')
+<style scoped>
+.min-h-\[calc\(100vh-16rem\)\] {
+  min-height: calc(100vh - 16rem);
+}
 
-// Données temporaires pour l'exemple
-const categories = [
-  { label: 'Toutes les catégories', value: '' },
-  { label: 'Guides', value: 'guides' },
-  { label: 'Tutoriels', value: 'tutorials' },
-  { label: 'Actualités', value: 'news' }
-]
-
-const articles = ref([
-  {
-    id: 1,
-    title: 'Premier article',
-    excerpt: 'Ceci est un extrait du premier article...',
-    category: { name: 'Guides', color: 'primary' },
-    published_at: '2024-03-20'
-  },
-  // Ajoutez d'autres articles pour tester
-])
-</script> 
+.bg-gray-750 {
+  background-color: rgb(31, 41, 55);
+}
+</style> 

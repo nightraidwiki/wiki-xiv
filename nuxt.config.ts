@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@pinia/nuxt'
   ],
+  css: ['~/assets/css/main.css'],
   app: {
     head: {
       title: 'Wiki XIV',
@@ -15,10 +16,6 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Documentation et articles sur divers sujets' }
       ]
     }
-  },
-  ui: {
-    global: true,
-    icons: ['heroicons']
   },
   runtimeConfig: {
     public: {
