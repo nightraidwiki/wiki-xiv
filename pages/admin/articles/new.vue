@@ -50,12 +50,10 @@
       <!-- Content -->
       <div class="form-group">
         <label class="form-label">Content</label>
-        <textarea
+        <TiptapEditor
           v-model="form.content"
-          class="form-input"
-          rows="10"
           placeholder="Write your article content here..."
-        ></textarea>
+        />
       </div>
 
       <!-- Published -->
