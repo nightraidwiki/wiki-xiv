@@ -66,6 +66,40 @@
           Source
         </button>
       </div>
+
+      <!-- Image Controls -->
+      <div v-if="isImageSelected" class="toolbar-group">
+        <button
+          v-for="align in imageAlignButtons"
+          :key="align.icon"
+          @click="align.action"
+          class="toolbar-button"
+          :class="{ 'is-active': align.isActive?.() }"
+          :title="align.title"
+        >
+          {{ align.icon }}
+        </button>
+        <button
+          @click="toggleInline"
+          class="toolbar-button"
+          :class="{ 'is-active': isInline }"
+          title="Mettre en ligne"
+        >
+          Inline
+        </button>
+        <div class="image-size-controls">
+          <input
+            type="range"
+            v-model="imageWidth"
+            min="100"
+            max="800"
+            step="10"
+            @input="updateImageSize"
+            title="Largeur de l'image"
+          />
+          <span class="size-label">{{ imageWidth }}px</span>
+        </div>
+      </div>
     </div>
 
     <!-- Editor -->
@@ -92,10 +126,11 @@ import TextAlign from '@tiptap/extension-text-align'
 import TextStyle from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import Link from '@tiptap/extension-link'
-import Image from '@tiptap/extension-image'
-import { ref, onBeforeUnmount, nextTick } from 'vue'
+import ImageResize from 'tiptap-extension-resize-image'
+import { ref, onBeforeUnmount, nextTick, computed } from 'vue'
 import { useSupabase } from '~/composables/useSupabase'
 import type { EditorView } from 'prosemirror-view'
+import imageCompression from 'browser-image-compression'
 
 const props = defineProps<{
   modelValue: string
@@ -114,6 +149,68 @@ const isLinkActive = ref(false)
 const isSourceMode = ref(false)
 const sourceContent = ref('')
 const linkInput = ref<HTMLInputElement | null>(null)
+const imageWidth = ref(400)
+
+const isImageSelected = computed(() => editor.value?.isActive('image'))
+const isInline = computed(() => editor.value?.isActive('image', { class: 'inline' }))
+
+async function convertToWebP(file: File): Promise<File> {
+  // Options de compression
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+    fileType: 'image/webp',
+  }
+
+  try {
+    // Compression et conversion en WebP
+    const compressedFile = await imageCompression(file, options)
+    
+    // Créer un nouveau fichier avec l'extension .webp
+    return new File([compressedFile], `${file.name.split('.')[0]}.webp`, {
+      type: 'image/webp'
+    })
+  } catch (error) {
+    console.error('Error converting image:', error)
+    return file // Retourner le fichier original en cas d'erreur
+  }
+}
+
+const imageAlignButtons = [
+  {
+    icon: '←',
+    title: 'Aligner à gauche',
+    action: () => editor.value?.chain().focus().updateAttributes('image', { class: 'align-left' }).run(),
+    isActive: () => editor.value?.isActive('image', { class: 'align-left' })
+  },
+  {
+    icon: '↔',
+    title: 'Centrer',
+    action: () => editor.value?.chain().focus().updateAttributes('image', { class: 'align-center' }).run(),
+    isActive: () => editor.value?.isActive('image', { class: 'align-center' })
+  },
+  {
+    icon: '→',
+    title: 'Aligner à droite',
+    action: () => editor.value?.chain().focus().updateAttributes('image', { class: 'align-right' }).run(),
+    isActive: () => editor.value?.isActive('image', { class: 'align-right' })
+  }
+]
+
+function toggleInline() {
+  if (editor.value?.isActive('image', { class: 'inline' })) {
+    editor.value.chain().focus().updateAttributes('image', { class: '' }).run()
+  } else {
+    editor.value?.chain().focus().updateAttributes('image', { class: 'inline' }).run()
+  }
+}
+
+function updateImageSize() {
+  if (editor.value?.isActive('image')) {
+    editor.value.chain().focus().updateAttributes('image', { width: imageWidth.value }).run()
+  }
+}
 
 const editor = useEditor({
   content: props.modelValue,
@@ -130,7 +227,8 @@ const editor = useEditor({
         class: 'text-blue-400 hover:text-blue-300',
       },
     }),
-    Image.configure({
+    ImageResize.configure({
+      inline: true,
       HTMLAttributes: {
         class: 'editor-image',
       },
@@ -143,6 +241,12 @@ const editor = useEditor({
   },
   onSelectionUpdate: ({ editor }) => {
     isLinkActive.value = editor.isActive('link')
+    if (editor.isActive('image')) {
+      const attrs = editor.getAttributes('image')
+      if (attrs.width) {
+        imageWidth.value = parseInt(attrs.width)
+      }
+    }
   },
   editorProps: {
     handlePaste: (view: EditorView, event: ClipboardEvent) => {
@@ -154,28 +258,30 @@ const editor = useEditor({
           event.preventDefault()
           const file = item.getAsFile()
           if (file) {
-            // Générer un nom de fichier unique
-            const fileExt = file.name.split('.').pop()
-            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
-            const filePath = fileName
+            // Convertir l'image en WebP
+            convertToWebP(file).then(webpFile => {
+              // Générer un nom de fichier unique
+              const fileName = `${Math.random().toString(36).substring(2)}.webp`
 
-            // Upload vers Supabase Storage
-            supabase.storage
-              .from('article-images')
-              .upload(filePath, file)
-              .then(({ error }) => {
-                if (error) throw error
-                return supabase.storage
-                  .from('article-images')
-                  .getPublicUrl(filePath)
-              })
-              .then(({ data: { publicUrl } }) => {
-                // Insérer l'image dans l'éditeur
-                editor.value?.chain().focus().setImage({ src: publicUrl }).run()
-              })
-              .catch((error) => {
-                console.error('Error uploading image:', error)
-              })
+              // Upload vers Supabase Storage
+              supabase.storage
+                .from('article-images')
+                .upload(fileName, webpFile)
+                .then(({ error }) => {
+                  if (error) throw error
+                  return supabase.storage
+                    .from('article-images')
+                    .getPublicUrl(fileName)
+                })
+                .then(({ data: { publicUrl } }) => {
+                  // Insérer l'image dans l'éditeur avec l'extension ImageResize
+                  // L'extension ImageResize gérera le redimensionnement via Node Views
+                  editor.value?.chain().focus().setImage({ src: publicUrl }).run()
+                })
+                .catch((error) => {
+                  console.error('Error uploading image:', error)
+                })
+            })
 
             return true
           }
@@ -480,17 +586,39 @@ onBeforeUnmount(() => {
   padding: 0;
 }
 
+.image-size-controls {
+  display: none;
+}
+
 :deep(.editor-image) {
   max-width: 100%;
   height: auto;
   margin: 1rem 0;
   border-radius: 0.5rem;
+  transition: all 0.2s ease;
 }
 
-:deep(.ProseMirror img) {
-  max-width: 100%;
-  height: auto;
-  margin: 1rem 0;
-  border-radius: 0.5rem;
+:deep(.editor-image.inline) {
+  display: inline-block;
+  margin: 0 0.5rem;
+  vertical-align: middle;
+}
+
+:deep(.editor-image.align-left) {
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+}
+
+:deep(.editor-image.align-right) {
+  float: right;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+}
+
+:deep(.editor-image.align-center) {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style> 

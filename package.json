@@ -21,7 +21,9 @@
     "@tiptap/pm": "^2.12.0",
     "@tiptap/starter-kit": "^2.12.0",
     "@tiptap/vue-3": "^2.12.0",
+    "browser-image-compression": "^2.0.2",
     "nuxt": "^3.17.4",
+    "tiptap-extension-resize-image": "^1.2.2",
     "vue": "^3.5.15",
     "vue-router": "^4.5.1"
   },
