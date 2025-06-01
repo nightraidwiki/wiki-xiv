@@ -55,6 +55,7 @@
         <TiptapEditor
           v-model="form.content"
           placeholder="Write your article content here..."
+          ref="tiptapEditorRef"
         />
       </div>
 
@@ -76,9 +77,10 @@
 
 <script setup lang="ts">
 import { useSupabase } from '~/composables/useSupabase'
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import type { User } from '@supabase/supabase-js'
 import { useRoute, useRouter } from 'vue-router'
+import TiptapEditor from '~/components/TiptapEditor.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -95,6 +97,8 @@ const form = reactive({
 const saving = ref(false)
 const user = ref<User | null>(null)
 const loadingError = ref<string | null>(null)
+
+const tiptapEditorRef = ref<InstanceType<typeof TiptapEditor> | null>(null)
 
 onMounted(async () => {
   const { data } = await supabase.auth.getUser()
@@ -123,6 +127,21 @@ onMounted(async () => {
       form.content = articleData.content
       form.published = articleData.visible
     }
+  }
+})
+
+// Watch for changes in form.content and tiptapEditorRef
+watch([() => form.content, tiptapEditorRef], ([newContent, editorComponent]) => {
+  // Ensure we are in edit mode (articleId exists), content is loaded, and editor is ready
+  if (articleId && newContent && editorComponent?.editor) {
+    // Use nextTick to ensure the editor component is fully rendered
+    nextTick(() => {
+      // Only set content if the editor's current content is different
+      // This prevents resetting the editor while typing
+      if (editorComponent.editor && editorComponent.editor.getHTML() !== newContent) {
+        editorComponent.editor?.commands.setContent(newContent)
+      }
+    })
   }
 })
 

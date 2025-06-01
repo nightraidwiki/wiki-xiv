@@ -126,6 +126,8 @@ import TextAlign from '@tiptap/extension-text-align'
 import TextStyle from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import Link from '@tiptap/extension-link'
+import Image from '@tiptap/extension-image'
+import HardBreak from '@tiptap/extension-hard-break'
 import ImageResize from 'tiptap-extension-resize-image'
 import { ref, onBeforeUnmount, nextTick, computed } from 'vue'
 import { useSupabase } from '~/composables/useSupabase'
@@ -216,17 +218,12 @@ const editor = useEditor({
   content: props.modelValue,
   extensions: [
     StarterKit,
-    TextAlign.configure({
-      types: ['heading', 'paragraph'],
-    }),
+    TextAlign.configure({ types: ['heading', 'paragraph'] }),
     TextStyle,
     Color,
-    Link.configure({
-      openOnClick: false,
-      HTMLAttributes: {
-        class: 'text-blue-400 hover:text-blue-300',
-      },
-    }),
+    Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-blue-400 hover:text-blue-300' } }),
+    Image.configure({ inline: true, allowBase64: true, HTMLAttributes: { class: 'editor-image' } }),
+    HardBreak,
     ImageResize.configure({
       inline: true,
       HTMLAttributes: {
@@ -402,6 +399,10 @@ function updateFromSource() {
 
 onBeforeUnmount(() => {
   editor.value?.destroy()
+})
+
+defineExpose({
+  editor
 })
 </script>
 
