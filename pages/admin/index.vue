@@ -3,12 +3,20 @@
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-blue-400">Admin Dashboard</h1>
-        <button
-          @click="handleLogout"
-          class="button-danger"
-        >
-          Logout
-        </button>
+        <div class="flex gap-4">
+          <NuxtLink 
+            to="/admin/articles/new"
+            class="button button-primary"
+          >
+            New Article
+          </NuxtLink>
+          <button
+            @click="handleLogout"
+            class="button button-danger"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
