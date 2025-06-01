@@ -1,7 +1,20 @@
 <template>
   <div class="p-8">
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">New Article</h1>
+      <div>
+        <h1 class="text-3xl font-bold">New Article</h1>
+        <div class="flex items-center gap-2 mt-2">
+          <div class="flex items-center gap-2">
+            <div 
+              class="w-3 h-3 rounded-full"
+              :class="user ? 'bg-green-500' : 'bg-red-500'"
+            ></div>
+            <span class="text-sm text-gray-400">
+              {{ user ? `Connected as ${user.email}` : 'Not connected' }}
+            </span>
+          </div>
+        </div>
+      </div>
       <div class="flex gap-4">
         <NuxtLink 
           to="/admin"
@@ -88,14 +101,27 @@ onMounted(async () => {
 async function handleSave() {
   try {
     saving.value = true
+    
+    // Préparer les données de l'article
+    const articleData = {
+      title: form.title,
+      content: form.content,
+      visible: form.published,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
     const { error } = await supabase
       .from('articles')
-      .insert(form)
+      .insert(articleData)
 
     if (error) throw error
+    
+    // Rediriger vers le dashboard admin après la sauvegarde
     await router.push('/admin')
   } catch (e: any) {
     console.error('Error saving article:', e)
+    // TODO: Ajouter une notification d'erreur pour l'utilisateur
   } finally {
     saving.value = false
   }
