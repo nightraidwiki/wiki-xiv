@@ -1,62 +1,54 @@
 <template>
-  <div class="max-w-4xl mx-auto px-4">
-    <article class="py-8">
-      <header class="mb-8">
-        <div class="flex items-center gap-4 mb-4">
-          <UBadge :color="article.category.color">
-            {{ article.category.name }}
-          </UBadge>
-          <span class="text-gray-500">
-            Publié le {{ new Date(article.published_at).toLocaleDateString() }}
-          </span>
-        </div>
-        <h1 class="text-4xl font-bold">{{ article.title }}</h1>
-      </header>
-
-      <div class="prose max-w-none" v-html="article.content" />
-    </article>
-
-    <div class="border-t py-8">
-      <UButton
-        to="/"
-        color="gray"
-        variant="soft"
-        icon="i-heroicons-arrow-left"
-      >
-        Retour aux articles
-      </UButton>
+  <div class="p-8">
+    <div v-if="pending">Loading article...</div>
+    <div v-else-if="error">Error loading article: {{ error.message }}</div>
+    <div v-else-if="article">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-3xl font-bold">{{ article.title }}</h1>
+        <NuxtLink
+          v-if="user"
+          :to="`/admin/articles/new?id=${articleId}`"
+          class="button button-secondary"
+        >
+          Edit
+        </NuxtLink>
+      </div>
+      <div class="prose dark:prose-invert" v-html="article.content"></div>
+      <NuxtLink to="/articles" class="button button-secondary mt-8">Back to Articles</NuxtLink>
     </div>
+    <div v-else>Article not found.</div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useSupabase } from '~/composables/useSupabase'
+import { useRoute } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import type { User } from '@supabase/supabase-js'
+
+const { supabase } = useSupabase()
 const route = useRoute()
+const articleId = route.params.id
+const user = ref<User | null>(null)
 
-const article = ref({
-  title: 'Chargement...',
-  content: '',
-  category: {
-    name: '',
-    color: 'gray'
-  },
-  published_at: new Date().toISOString()
-})
-
-// TODO: Charger l'article depuis Supabase avec l'ID de la route
 onMounted(async () => {
-  try {
-    // Simulation de chargement pour l'exemple
-    article.value = {
-      title: 'Mon premier article',
-      content: '<p>Contenu de l\'article...</p>',
-      category: {
-        name: 'Guides',
-        color: 'primary'
-      },
-      published_at: '2024-03-20'
-    }
-  } catch (error) {
-    console.error('Error loading article:', error)
-  }
+  const { data } = await supabase.auth.getUser()
+  user.value = data.user
 })
-</script> 
+
+const { data: article, pending, error } = useAsyncData(`article-${articleId}`, async () => {
+  const { data, error } = await supabase
+    .from('articles')
+    .select('title, content')
+    .eq('id', articleId)
+    .single()
+
+  if (error) throw error
+
+  return data
+})
+</script>
+
+<style scoped>
+/* Ajoutez des styles si nécessaire */
+</style> 

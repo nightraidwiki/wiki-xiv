@@ -2,7 +2,7 @@
   <div class="p-8">
     <div class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-3xl font-bold">New Article</h1>
+        <h1 class="text-3xl font-bold">{{ articleId ? 'Edit Article' : 'New Article' }}</h1>
         <div class="flex items-center gap-2 mt-2">
           <div class="flex items-center gap-2">
             <div 
@@ -27,11 +27,13 @@
           class="button button-primary"
           :disabled="saving"
         >
-          <span v-if="saving">Saving...</span>
-          <span v-else>Save</span>
+          <span v-if="saving">{{ articleId ? 'Saving...' : 'Creating...' }}</span>
+          <span v-else>{{ articleId ? 'Save Changes' : 'Create Article' }}</span>
         </button>
       </div>
     </div>
+
+    <div v-if="loadingError" class="text-red-500 mb-4">Error loading article for editing: {{ loadingError }}</div>
 
     <!-- Form -->
     <form @submit.prevent="handleSave" class="space-y-6">
@@ -76,8 +78,13 @@
 import { useSupabase } from '~/composables/useSupabase'
 import { ref, reactive, onMounted } from 'vue'
 import type { User } from '@supabase/supabase-js'
+import { useRoute, useRouter } from 'vue-router'
+
 const router = useRouter()
+const route = useRoute()
 const { supabase } = useSupabase()
+
+const articleId = route.query.id as string | undefined
 
 const form = reactive({
   title: '',
@@ -87,6 +94,7 @@ const form = reactive({
 
 const saving = ref(false)
 const user = ref<User | null>(null)
+const loadingError = ref<string | null>(null)
 
 onMounted(async () => {
   const { data } = await supabase.auth.getUser()
@@ -94,28 +102,69 @@ onMounted(async () => {
   if (!user.value) {
     router.push('/auth/login')
   }
+
+  // Si un ID d'article est présent dans l'URL, charger l'article
+  if (articleId) {
+    const { data: articleData, error } = await supabase
+      .from('articles')
+      .select('title, content, visible')
+      .eq('id', articleId)
+      .single()
+
+    if (error) {
+      console.error('Error loading article for editing:', error)
+      loadingError.value = error.message // Store the error message
+      // TODO: Afficher une notification d'erreur
+      return
+    }
+
+    if (articleData) {
+      form.title = articleData.title
+      form.content = articleData.content
+      form.published = articleData.visible
+    }
+  }
 })
 
 async function handleSave() {
   try {
     saving.value = true
     
-    // Préparer les données de l'article
     const articleData = {
       title: form.title,
       content: form.content,
       visible: form.published,
-      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
 
-    const { error } = await supabase
-      .from('articles')
-      .insert(articleData)
+    if (articleId) {
+      // Mettre à jour l'article existant
+      const { error } = await supabase
+        .from('articles')
+        .update(articleData)
+        .eq('id', articleId)
 
-    if (error) throw error
+      if (error) throw error
+
+      console.log('Article updated successfully!')
+      // TODO: Afficher une notification de succès
+
+    } else {
+      // Créer un nouvel article
+      const { error } = await supabase
+        .from('articles')
+        .insert({
+          ...articleData,
+          created_at: new Date().toISOString()
+        })
+
+      if (error) throw error
+
+      console.log('Article created successfully!')
+      // TODO: Afficher une notification de succès
+    }
     
-    // Rediriger vers le dashboard admin après la sauvegarde
+    // Rediriger vers le dashboard admin après la sauvegarde/mise à jour
     await router.push('/admin')
   } catch (e: any) {
     console.error('Error saving article:', e)

@@ -6,7 +6,7 @@
         <button
           v-for="item in formatButtons"
           :key="item.icon"
-          @click="item.action"
+          @click.prevent="item.action"
           class="toolbar-button"
           :class="{ 'is-active': item.isActive?.() }"
         >
@@ -18,7 +18,7 @@
         <button
           v-for="align in alignButtons"
           :key="align.icon"
-          @click="align.action"
+          @click.prevent="align.action"
           class="toolbar-button"
           :class="{ 'is-active': align.isActive?.() }"
         >
@@ -36,7 +36,7 @@
         />
         <div class="link-group">
           <button
-            @click="toggleLink"
+            @click.prevent="toggleLink"
             class="toolbar-button"
             :class="{ 'is-active': isLinkActive }"
           >
@@ -52,14 +52,14 @@
               ref="linkInput"
             />
             <div class="link-dialog-buttons">
-              <button @click="setLink" class="toolbar-button">OK</button>
-              <button @click="removeLink" class="toolbar-button">Supprimer</button>
-              <button @click="closeLinkDialog" class="toolbar-button">Annuler</button>
+              <button @click.prevent="setLink" class="toolbar-button">OK</button>
+              <button @click.prevent="removeLink" class="toolbar-button">Supprimer</button>
+              <button @click.prevent="closeLinkDialog" class="toolbar-button">Annuler</button>
             </div>
           </div>
         </div>
         <button
-          @click="toggleSource"
+          @click.prevent="toggleSource"
           class="toolbar-button"
           :class="{ 'is-active': isSourceMode }"
         >
@@ -72,7 +72,7 @@
         <button
           v-for="align in imageAlignButtons"
           :key="align.icon"
-          @click="align.action"
+          @click.prevent="align.action"
           class="toolbar-button"
           :class="{ 'is-active': align.isActive?.() }"
           :title="align.title"
@@ -80,7 +80,7 @@
           {{ align.icon }}
         </button>
         <button
-          @click="toggleInline"
+          @click.prevent="toggleInline"
           class="toolbar-button"
           :class="{ 'is-active': isInline }"
           title="Mettre en ligne"

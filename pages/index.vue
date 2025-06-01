@@ -22,13 +22,16 @@
 
     <!-- Features -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
-      <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
+      <NuxtLink 
+        to="/articles"
+        class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors flex flex-col items-center text-center"
+      >
         <h3 class="text-xl font-semibold mb-2">
           <span class="text-blue-400 mr-2">📚</span>
           Documentation
         </h3>
         <p class="text-gray-400">Access comprehensive and structured documentation</p>
-      </div>
+      </NuxtLink>
       
       <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
         <h3 class="text-xl font-semibold mb-2">
