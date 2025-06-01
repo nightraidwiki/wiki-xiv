@@ -92,7 +92,10 @@ import TextAlign from '@tiptap/extension-text-align'
 import TextStyle from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import Link from '@tiptap/extension-link'
+import Image from '@tiptap/extension-image'
 import { ref, onBeforeUnmount, nextTick } from 'vue'
+import { useSupabase } from '~/composables/useSupabase'
+import type { EditorView } from 'prosemirror-view'
 
 const props = defineProps<{
   modelValue: string
@@ -101,6 +104,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+const { supabase } = useSupabase()
 
 const selectedColor = ref('#ffffff')
 const showLinkDialog = ref(false)
@@ -125,6 +130,11 @@ const editor = useEditor({
         class: 'text-blue-400 hover:text-blue-300',
       },
     }),
+    Image.configure({
+      HTMLAttributes: {
+        class: 'editor-image',
+      },
+    }),
   ],
   onUpdate: ({ editor }) => {
     const html = editor.getHTML()
@@ -133,7 +143,47 @@ const editor = useEditor({
   },
   onSelectionUpdate: ({ editor }) => {
     isLinkActive.value = editor.isActive('link')
-  }
+  },
+  editorProps: {
+    handlePaste: (view: EditorView, event: ClipboardEvent) => {
+      const items = event.clipboardData?.items
+      if (!items) return false
+
+      for (const item of items) {
+        if (item.type.indexOf('image') === 0) {
+          event.preventDefault()
+          const file = item.getAsFile()
+          if (file) {
+            // Générer un nom de fichier unique
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+            const filePath = fileName
+
+            // Upload vers Supabase Storage
+            supabase.storage
+              .from('article-images')
+              .upload(filePath, file)
+              .then(({ error }) => {
+                if (error) throw error
+                return supabase.storage
+                  .from('article-images')
+                  .getPublicUrl(filePath)
+              })
+              .then(({ data: { publicUrl } }) => {
+                // Insérer l'image dans l'éditeur
+                editor.value?.chain().focus().setImage({ src: publicUrl }).run()
+              })
+              .catch((error) => {
+                console.error('Error uploading image:', error)
+              })
+
+            return true
+          }
+        }
+      }
+      return false
+    },
+  },
 })
 
 const formatButtons = [
@@ -428,5 +478,19 @@ onBeforeUnmount(() => {
 :deep(.ProseMirror pre code) {
   background-color: transparent;
   padding: 0;
+}
+
+:deep(.editor-image) {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+}
+
+:deep(.ProseMirror img) {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
 }
 </style> 
