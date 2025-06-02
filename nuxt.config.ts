@@ -14,6 +14,12 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Documentation et articles sur divers sujets' }
+      ],
+      script: [
+        { src: '/richtexteditor/rte.js' }
+      ],
+      link: [
+        { rel: 'stylesheet', href: '/richtexteditor/rte_theme_default.css' }
       ]
     }
   },
