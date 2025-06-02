@@ -3,7 +3,7 @@
     <!-- Navigation -->
     <nav class="nav">
       <div class="container">
-        <div class="flex items-center justify-between nav-content">
+        <div class="flex items-center justify-content-between nav-content">
           <!-- Logo -->
           <NuxtLink to="/" class="logo">
             Wiki XIV
@@ -13,7 +13,7 @@
           <div class="flex gap-4">
             <NuxtLink 
               to="/auth/login"
-              class="button button-primary"
+              class="btn btn-primary"
             >
               Connexion Admin
             </NuxtLink>
