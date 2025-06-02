@@ -30,7 +30,13 @@ onMounted(() => {
     // Initialize RichTextEditor avec configuration de base
     rte = new RichTextEditor(div, {
       toolbar: 'full',
-      showFloatingSidebar: false
+      showFloatingSidebar: false,
+      // Configuration du thème bleu
+      skin: 'blue',
+      uiMode: 'classic',
+      // Désactivation des éléments non nécessaires
+      enableFloating: false,
+      enableContextMenu: false
     });
     
     // Masquer la barre latérale après l'initialisation
@@ -103,92 +109,16 @@ defineExpose({
 })
 </script>
 
-<style scoped>
-.rich-text-editor {
-  border: 1px solid #374151;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  background-color: #1f2937;
-  margin: 1rem 0;
-}
+<style>
 
-.rte-container {
-  min-height: 300px;
+rte-dropdown-panel {
+  background: #ccdcee;
+  color: #000;
 }
-
-/* Masquer les éléments indésirables du RTE */
-:deep(#rteDebugInfo),
-:deep(#rteDebugToolbar),
-:deep(.rte-toolbar-floating),
-:deep(.rte-toolbar-float),
-:deep(.rte-toolbar-fixed) {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  height: 0 !important;
-  width: 0 !important;
-  overflow: hidden !important;
-  position: absolute !important;
-  top: -9999px !important;
-  left: -9999px !important;
+rte-taglist {
+  background: rgb(37, 97, 117);
 }
-
-/* Désactiver la sélection flottante */
-:deep(.rte-selection-marker) {
-  display: none !important;
-}
-
-/* Désactiver les outils flottants */
-:deep(.rte-floating-toolbar),
-:deep([class*="floating-toolbar"]) {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  position: absolute !important;
-  top: -9999px !important;
-  left: -9999px !important;
-}
-
-/* Cible spécifiquement la barre latérale du RTE */
-:deep(.rte-sidebar),
-:deep([class*="sidebar"]):not(.rte-editor) {
-  display: none !important;
-}
-
-/* Désactive les effets de survol qui pourraient faire apparaître la barre */
-:deep(.rte-editor *) {
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-}
-
-:deep(.rte-modern) {
-  --rte-main-color: #2563eb;
-  --rte-main-color-brighten: #3b82f6;
-  --rte-text-color: #f3f4f6;
-  --rte-background-color: #1f2937;
-  --rte-toolbar-color: #111827;
-  --rte-border-color: #374151;
-  --rte-border-radius: 0.5rem;
-  --rte-box-shadow: none;
-  --rte-font-family: inherit;
-  --rte-selection-color: rgba(59, 130, 246, 0.3);
-}
-
-:deep(.rte-modern .rte-toolbar) {
-  background-color: #111827;
-  border-bottom: 1px solid #374151;
-}
-
-:deep(.rte-modern .rte-editarea) {
-  color: #f3f4f6;
-  background-color: #1f2937;
-  min-height: 200px;
+rte-floatpanel {
+  display: none;
 }
 </style>
