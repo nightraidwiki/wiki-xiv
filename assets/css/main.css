@@ -1,201 +1,343 @@
-/* Reset et styles de base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Styles personnalisés pour l'application Wiki XIV */
 
+/* Styles de base */
 body {
-  background-color: rgb(17, 24, 39); /* Équivalent du bg-gray-900 */
-  color: rgb(243, 244, 246); /* Équivalent du text-gray-100 */
-  font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
 }
 
-/* Variables CSS pour les couleurs */
+/* Variables pour le thème sombre */
 :root {
-  --color-gray-750: rgb(31, 41, 55);
-  --color-gray-850: rgb(24, 31, 41);
-  --color-gray-950: rgb(17, 24, 39);
+  --bs-body-bg: #121212;
+  --bs-body-color: #ffffff; /* Blanc pur pour un meilleur contraste */
+  --bs-emphasis-color: #ffffff;
+  --bs-secondary-color: #e9ecef;
+  --bs-tertiary-color: #dee2e6;
+  --bs-primary: #0d6efd;
+  --bs-secondary: #6c757d;
+  --bs-success: #198754;
+  --bs-info: #0dcaf0;
+  --bs-warning: #ffc107;
+  --bs-danger: #dc3545;
+  --bs-light: #2b2d31;
+  --bs-dark: #f8f9fa;
+  --bs-card-bg: #1e1e1e;
+  --bs-border-color: #444950;
+  --bs-heading-color: #ffffff;
+  --bs-link-color: #6ea8fe;
+  --bs-link-hover-color: #8bb9fe;
 }
 
-/* Styles de base pour les éléments courants */
+/* Personnalisation des éléments Bootstrap */
+body {
+  color: var(--bs-body-color);
+}
+
 h1, h2, h3, h4, h5, h6 {
-  margin-bottom: 1rem;
-  font-weight: 600;
+  color: var(--bs-heading-color, var(--bs-emphasis-color));
+}
+
+.text-muted {
+  color: var(--bs-secondary-color) !important;
+}
+
+.text-body-secondary {
+  color: var(--bs-secondary-color) !important;
+}
+
+.card {
+  background-color: var(--bs-card-bg);
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+}
+
+.card-title {
+  color: var(--bs-heading-color, var(--bs-emphasis-color));
+}
+
+.card-text {
+  color: var(--bs-body-color);
+}
+
+.form-control, .form-select, .form-control:focus, .form-select:focus {
+  background-color: #2b2b2b;
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+}
+
+.form-control::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--bs-secondary-color);
+  --bs-btn-border-color: var(--bs-border-color);
+  --bs-btn-hover-bg: var(--bs-tertiary-bg);
+  --bs-btn-hover-border-color: var(--bs-border-color);
+  --bs-btn-active-bg: var(--bs-tertiary-bg);
+  --bs-btn-active-border-color: var(--bs-border-color);
+  --bs-btn-disabled-color: #6c757d;
+  --bs-btn-disabled-border-color: #6c757d;
 }
 
 a {
-  color: #60a5fa; /* Bleu clair */
+  color: var(--bs-link-color);
   text-decoration: none;
 }
 
 a:hover {
+  color: var(--bs-link-hover-color);
   text-decoration: underline;
 }
 
-/* Classes utilitaires communes */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+/* Correction des couleurs pour les tableaux */
+.table {
+  --bs-table-color: var(--bs-body-color);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--bs-border-color);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-striped-color: var(--bs-body-color);
+  --bs-table-active-bg: rgba(255, 255, 255, 0.1);
+  --bs-table-active-color: var(--bs-body-color);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.075);
+  --bs-table-hover-color: var(--bs-body-color);
 }
 
-.flex {
+/* Correction des couleurs pour les listes */
+.list-group-item {
+  background-color: var(--bs-card-bg);
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+}
+
+/* Correction des couleurs pour les modales */
+.modal-content {
+  background-color: var(--bs-card-bg);
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
+}
+
+.modal-header, .modal-footer {
+  border-color: var(--bs-border-color);
+}
+
+/* Styles pour l'éditeur de texte riche */
+.editor-content {
+  min-height: 300px;
+}
+
+.ProseMirror {
+  min-height: 300px;
+  padding: 1rem;
+  background-color: #2b2b2b;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.375rem;
+  color: var(--bs-body-color);
+}
+
+.ProseMirror:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Styles pour les cartes d'administration */
+.admin-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.admin-card .card-body {
   display: flex;
-}
-
-.flex-col {
   flex-direction: column;
 }
 
-.items-center {
-  align-items: center;
+.admin-card .card-title {
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
-.justify-between {
-  justify-content: space-between;
+.admin-card .card-text {
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
 }
 
-.gap-4 {
-  gap: 1rem;
-}
-
-/* Styles pour les boutons */
-.button {
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.button-primary {
-  background-color: #2563eb;
-  color: white;
-}
-
-.button-primary:hover {
-  background-color: #1d4ed8;
-}
-
-.button-danger {
-  background-color: #dc2626;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.button-danger:hover {
-  background-color: #b91c1c;
-  transform: scale(1.02);
-}
-
-/* Styles pour les formulaires */
-.form-container {
-  min-height: calc(100vh - 16rem);
+/* Styles pour l'authentification */
+.auth-container {
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  background-color: var(--bs-body-bg);
 }
 
-.form-card {
+.auth-card {
   width: 100%;
   max-width: 28rem;
-  background-color: var(--color-gray-850);
+  background-color: var(--bs-card-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
-.form-title {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: #60a5fa;
-  margin-bottom: 0.5rem;
-  text-align: center;
+.auth-title {
+  color: var(--bs-primary);
+  font-weight: 700;
 }
 
-.form-subtitle {
-  color: #9ca3af;
-  text-align: center;
-  margin-bottom: 2rem;
+.auth-subtitle {
+  color: #adb5bd;
 }
 
-.form-group {
+/* Styles pour les alertes et notifications */
+.custom-alert {
+  border-radius: 0.5rem;
+  border-width: 0;
+  padding: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.form-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #d1d5db;
-  margin-bottom: 0.5rem;
+.custom-alert-danger {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #ea868f;
 }
 
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: var(--color-gray-750);
-  border: 1px solid #4b5563;
-  border-radius: 0.5rem;
-  color: white;
+.custom-alert-success {
+  background-color: rgba(25, 135, 84, 0.15);
+  color: #75b798;
+}
+
+.custom-alert-info {
+  background-color: rgba(13, 202, 240, 0.15);
+  color: #6edff6;
+}
+
+/* Styles pour les boutons d'action */
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   transition: all 0.2s;
 }
 
-.form-input::placeholder {
-  color: #9ca3af;
+.action-button:hover {
+  transform: translateY(-2px);
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+.action-button:active {
+  transform: translateY(0);
 }
 
-.form-error {
-  color: #f87171;
-  font-size: 0.875rem;
+/* Styles pour les badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge-published {
+  background-color: rgba(25, 135, 84, 0.15);
+  color: #75b798;
+}
+
+.status-badge-draft {
+  background-color: rgba(108, 117, 125, 0.15);
+  color: #adb5bd;
+}
+
+/* Styles pour la page d'accueil */
+.hero-section {
+  padding: 5rem 0;
   text-align: center;
-  margin-top: 0.5rem;
+  background-color: var(--bs-body-bg);
 }
 
-.form-button {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: #2563eb;
-  color: white;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s;
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(to right, #0d6efd, #6610f2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.form-button:hover:not(:disabled) {
-  background-color: #1d4ed8;
-  transform: scale(1.02);
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #adb5bd;
+  max-width: 36rem;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
 }
 
-.form-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Styles pour le pied de page */
+.footer {
+  padding: 2rem 0;
+  background-color: var(--bs-card-bg);
+  border-top: 1px solid var(--bs-border-color);
 }
 
-.form-link {
-  display: block;
-  text-align: center;
-  margin-top: 1.5rem;
-  color: #9ca3af;
-  font-size: 0.875rem;
-  transition: color 0.2s;
+/* Personnalisation des tables */
+.table {
+  color: var(--bs-body-color);
+  border-color: var(--bs-border-color);
 }
 
-.form-link:hover {
-  color: #60a5fa;
+.table-dark {
+  --bs-table-bg: var(--bs-card-bg);
+  --bs-table-striped-bg: #2c3034;
+  --bs-table-striped-color: #fff;
+  --bs-table-active-bg: #373b3e;
+  --bs-table-active-color: #fff;
+  --bs-table-hover-bg: #323539;
+  --bs-table-hover-color: #fff;
+  color: #fff;
+  border-color: #373b3e;
+}
+
+/* Styles pour les icônes */
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-link:hover {
+  text-decoration: none;
+}
+
+/* Styles pour les animations */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Styles pour les médias */
+@media (max-width: 768px) {
+  .auth-card {
+    max-width: 90%;
+  }
+  
+  .hero-title {
+    font-size: 2.25rem;
+  }
 }
 
 /* Classes d'espacement */
@@ -376,4 +518,4 @@ a:hover {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-} 
+}

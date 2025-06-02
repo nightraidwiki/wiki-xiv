@@ -1,59 +1,76 @@
 <template>
-  <div class="min-h-[calc(100vh-16rem)] flex flex-col items-center justify-center text-center px-4">
+  <div class="min-vh-100 d-flex flex-column justify-content-center text-center p-4">
     <!-- Hero Section -->
-    <div class="max-w-3xl mx-auto">
-      <h1 class="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-text">
-        Wiki XIV
-      </h1>
-      <p class="text-xl text-gray-300 mb-16 leading-relaxed">
-        Your modern and intuitive documentation platform. Explore our knowledge base and stay informed.
-      </p>
-      
-      <!-- Call to Action -->
-      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-32">
-        <NuxtLink 
-          to="/auth/login"
-          class="button button-primary px-8 py-4"
-        >
-          Access Administration
-        </NuxtLink>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <h1 class="display-3 fw-bold mb-4">
+            Wiki XIV
+          </h1>
+          <p class="lead text-muted mb-5">
+            Your modern and intuitive documentation platform. Explore our knowledge base and stay informed.
+          </p>
+          
+          <!-- Call to Action -->
+          <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
+            <NuxtLink 
+              to="/auth/login"
+              class="btn btn-primary btn-lg px-4 py-2"
+            >
+              Access Administration
+            </NuxtLink>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Features -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
-      <NuxtLink 
-        to="/articles"
-        class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors flex flex-col items-center text-center"
-      >
-        <h3 class="text-xl font-semibold mb-2">
-          <span class="text-blue-400 mr-2">📚</span>
-          Documentation
-        </h3>
-        <p class="text-gray-400">Access comprehensive and structured documentation</p>
-      </NuxtLink>
-      
-      <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
-        <h3 class="text-xl font-semibold mb-2">
-          <span class="text-blue-400 mr-2">🔍</span>
-          Search
-        </h3>
-        <p class="text-gray-400">Quickly find the information you need</p>
-      </div>
-      
-      <div class="bg-gray-800 p-6 rounded-xl hover:bg-gray-750 transition-colors">
-        <h3 class="text-xl font-semibold mb-2">
-          <span class="text-blue-400 mr-2">✨</span>
-          Interface
-        </h3>
-        <p class="text-gray-400">A modern and intuitive user experience</p>
+      <!-- Features -->
+      <div class="row g-4 mt-5">
+        <div class="col-md-4">
+          <NuxtLink 
+            to="/articles"
+            class="card h-100 text-decoration-none text-reset hover-shadow"
+          >
+            <div class="card-body text-center p-4">
+              <h3 class="h4 card-title mb-3">
+                <span class="text-primary me-2">📚</span>
+                Documentation
+              </h3>
+              <p class="card-text text-muted">Access comprehensive and structured documentation</p>
+            </div>
+          </NuxtLink>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body text-center p-4">
+              <h3 class="h4 card-title mb-3">
+                <span class="text-primary me-2">🔍</span>
+                Search
+              </h3>
+              <p class="card-text text-muted">Quickly find the information you need</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body text-center p-4">
+              <h3 class="h4 card-title mb-3">
+                <span class="text-primary me-2">✨</span>
+                Interface
+              </h3>
+              <p class="card-text text-muted">A modern and intuitive user experience</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.min-h-\[calc\(100vh-16rem\)\] {
+.min-vh-100 {
+  min-height: 100vh;
   min-height: calc(100vh - 16rem);
 }
 

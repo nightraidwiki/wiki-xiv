@@ -1,86 +1,128 @@
 <template>
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">{{ isNew ? 'Nouvel article' : 'Modifier l\'article' }}</h1>
-      <div class="flex gap-4">
-        <UButton
-          color="gray"
-          variant="soft"
-          to="/admin"
-        >
-          Annuler
-        </UButton>
-        <UButton
-          color="primary"
-          :loading="saving"
+  <div class="container py-4">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h2 mb-0">
+        <i class="bi me-2" :class="isNew ? 'bi-file-earmark-plus' : 'bi-pencil-square'"></i>
+        {{ isNew ? 'Nouvel article' : 'Modifier l\'article' }}
+      </h1>
+      <div class="d-flex gap-2">
+        <NuxtLink to="/admin" class="btn btn-outline-secondary">
+          <i class="bi bi-x-lg me-1"></i> Annuler
+        </NuxtLink>
+        <button 
+          type="button"
+          class="btn btn-primary"
           @click="saveArticle"
+          :disabled="saving"
         >
-          Enregistrer
-        </UButton>
+          <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          <i v-else class="bi bi-save me-1"></i>
+          {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
       </div>
     </div>
 
-    <form @submit.prevent="saveArticle" class="space-y-6">
-      <UCard>
-        <div class="space-y-4">
-          <UFormGroup label="Titre" name="title">
-            <UInput
+    <!-- Formulaire -->
+    <form @submit.prevent="saveArticle" class="needs-validation" novalidate>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <!-- Titre -->
+          <div class="mb-4">
+            <label for="articleTitle" class="form-label fw-semibold">Titre</label>
+            <input
+              id="articleTitle"
               v-model="article.title"
+              type="text"
+              class="form-control form-control-lg"
               placeholder="Titre de l'article"
               required
-            />
-          </UFormGroup>
+            >
+            <div class="invalid-feedback">
+              Veuillez saisir un titre pour l'article.
+            </div>
+          </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <UFormGroup label="Catégorie" name="category">
-              <USelect
-                v-model="article.category"
-                :options="categories"
+          <!-- Catégorie et Visibilité -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="articleCategory" class="form-label fw-semibold">Catégorie</label>
+              <select 
+                id="articleCategory"
+                v-model="article.category" 
+                class="form-select"
                 required
-              />
-            </UFormGroup>
+              >
+                <option v-for="(cat, index) in categories" :key="index" :value="cat.value">
+                  {{ cat.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch pt-4">
+                <input
+                  id="visibilitySwitch"
+                  v-model="article.visible"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                >
+                <label class="form-check-label fw-semibold" for="visibilitySwitch">
+                  {{ article.visible ? 'Visible' : 'Non visible' }}
+                </label>
+              </div>
+              <div class="form-text">
+                {{ article.visible ? 'Cet article est visible par le public' : 'Cet article est enregistré comme brouillon' }}
+              </div>
+            </div>
+          </div>
 
-            <UFormGroup label="Visibilité" name="visible">
-              <UToggle v-model="article.visible">
-                {{ article.visible ? 'Visible' : 'Non visible' }}
-              </UToggle>
-            </UFormGroup>
+          <!-- Éditeur de contenu -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Contenu</label>
+            <div class="border rounded p-3">
+              <editor-content :editor="editor" class="editor-content" />
+            </div>
           </div>
         </div>
-      </UCard>
-
-      <UCard>
-        <template #header>
-          <div class="flex items-center gap-2">
-            <h2 class="text-lg font-semibold">Contenu</h2>
-          </div>
-        </template>
-
-        <div class="prose max-w-none">
-          <editor-content :editor="editor" />
-        </div>
-      </UCard>
+      </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 
+// Définition des types
+interface Article {
+  title: string
+  category: string
+  visible: boolean
+  content: string
+}
+
+interface Category {
+  label: string
+  value: string
+}
+
 const route = useRoute()
+const router = useRouter()
 const isNew = route.params.id === 'new'
 const saving = ref(false)
 
-const article = ref({
+const article = ref<Article>({
   title: '',
   category: '',
   visible: true,
   content: ''
 })
 
-const categories = [
+const categories: Category[] = [
   { label: 'Guides', value: 'guides' },
   { label: 'Tutoriels', value: 'tutorials' },
   { label: 'Actualités', value: 'news' }
@@ -94,37 +136,109 @@ const editor = useEditor({
   ],
   onUpdate: ({ editor }) => {
     article.value.content = editor.getHTML()
+  },
+  editorProps: {
+    attributes: {
+      class: 'prose max-w-none focus:outline-none',
+      style: 'min-height: 300px;'
+    }
   }
 })
 
 const saveArticle = async () => {
   saving.value = true
   try {
-    // TODO: Implémenter la sauvegarde avec Supabase
+    // Vérification de la validation du formulaire
+    const form = document.querySelector('.needs-validation') as HTMLFormElement
+    if (!form.checkValidity()) {
+      form.classList.add('was-validated')
+      saving.value = false
+      return
+    }
+
+    // Simulation de sauvegarde
     console.log('Saving article:', article.value)
+    
+    // Redirection après sauvegarde
+    await router.push('/admin')
+    
   } catch (error) {
-    console.error('Save error:', error)
+    console.error('Erreur lors de la sauvegarde:', error)
+    // TODO: Afficher une notification d'erreur
   } finally {
     saving.value = false
   }
 }
 
-// Si ce n'est pas un nouvel article, charger les données
-if (!isNew) {
-  // TODO: Charger l'article depuis Supabase
-}
+onMounted(() => {
+  // Si ce n'est pas un nouvel article, charger les données
+  if (!isNew) {
+    // Simulation de chargement d'un article
+    setTimeout(() => {
+      article.value = {
+        title: 'Titre de l\'article',
+        category: 'guides',
+        visible: true,
+        content: '<p>Contenu de l\'article...</p>'
+      }
+      
+      // Mettre à jour l'éditeur avec le contenu
+      if (editor.value) {
+        editor.value.commands.setContent(article.value.content)
+      }
+    }, 500)
+  }
+})
+
+// Nettoyage de l'éditeur
+onBeforeUnmount(() => {
+  if (editor.value) {
+    editor.value.destroy()
+  }
+})
 </script>
 
-<style>
-.ProseMirror {
+<style scoped>
+.editor-content {
   min-height: 300px;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
 }
 
-.ProseMirror:focus {
+:deep(.ProseMirror) {
+  min-height: 300px;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
   outline: none;
-  border-color: #3b82f6;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+:deep(.ProseMirror:focus) {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+:deep(.ProseMirror p) {
+  margin-bottom: 1rem;
+}
+
+:deep(.ProseMirror h1),
+:deep(.ProseMirror h2),
+:deep(.ProseMirror h3) {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+:deep(.ProseMirror h1) {
+  font-size: 2rem;
+}
+
+:deep(.ProseMirror h2) {
+  font-size: 1.75rem;
+}
+
+:deep(.ProseMirror h3) {
+  font-size: 1.5rem;
 }
 </style> 

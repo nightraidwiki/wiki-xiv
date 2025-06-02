@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
@@ -14,7 +16,11 @@ export default defineNuxtConfig({
   ],
   
   // Fichiers CSS globaux
-  css: ['~/assets/css/main.css'],
+  css: [
+    'bootstrap/dist/css/bootstrap.min.css',
+    'bootstrap-icons/font/bootstrap-icons.css',
+    '~/assets/css/main.css'
+  ],
   
   // Configuration de l'application
   app: {
@@ -26,7 +32,10 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Documentation et articles sur divers sujets' }
       ],
       script: [
-        { src: '/richtexteditor/rte.js' }
+        { src: '/richtexteditor/rte.js' },
+        // Ajout du JavaScript de Bootstrap (nécessite Popper.js)
+        { src: 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js' },
+        { src: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js' }
       ],
       link: [
         { rel: 'stylesheet', href: '/richtexteditor/rte_theme_default.css' },
