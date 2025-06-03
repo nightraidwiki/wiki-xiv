@@ -11,7 +11,12 @@
           >
             <i class="bi bi-plus-circle me-1"></i> New Article
           </NuxtLink>
-          <button
+          <NuxtLink 
+            to="/admin/categories/new"
+            class="btn btn-primary"
+          >
+            <i class="bi bi-plus-circle me-1"></i> New Category
+          </NuxtLink>          <button
             @click="handleLogout"
             class="btn btn-outline-danger"
           >

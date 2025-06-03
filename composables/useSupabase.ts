@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
+import { useRuntimeConfig } from 'nuxt/app'
 
 export const useSupabase = () => {
   const config = useRuntimeConfig()
   
   const supabase = createClient(
-    config.public.supabaseUrl,
-    config.public.supabaseKey
+    config.public.supabaseUrl as string,
+    config.public.supabaseKey as string
   )
 
   const getCurrentUser = async () => {
@@ -98,6 +99,49 @@ export const useSupabase = () => {
     return data
   }
 
+  const getCategory = async (id: string) => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  const createCategory = async (category: any) => {
+    const { data, error } = await supabase
+      .from('categories')
+      .insert(category)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  const updateCategory = async (id: string, category: any) => {
+    const { data, error } = await supabase
+      .from('categories')
+      .update(category)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  const deleteCategory = async (id: string) => {
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  }
+
   return {
     supabase,
     getCurrentUser,
@@ -108,6 +152,10 @@ export const useSupabase = () => {
     createArticle,
     updateArticle,
     deleteArticle,
-    getCategories
+    getCategories,
+    getCategory,
+    createCategory,
+    updateCategory,
+    deleteCategory
   }
-} 
+}
