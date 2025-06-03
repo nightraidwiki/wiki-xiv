@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-6">
+      <div class="col-6 mb-4" v-for="article in articles" :key="article.id">
         <article class="flex css_article_bloc">
           <div class="d-flex css_info_article">
-            <!-- Insérer icone de la category -->
-            <img src="/public/categories/act.png" alt="" class="css_icon_article">
+            <!-- Icône de la catégorie dynamique -->
+            <img :src="getCategoryIcon(article.category_name)" :alt="article.category_name" class="css_icon_article">
             <div class="d-flex flex-column">
-              <h4>This is a title article</h4>
-              <span class="css_published_date">Published: created_at</span>
+              <h4>{{ article.title }}</h4>
+              <span class="css_published_date">Published: {{ formatDate(article.created_at) }}</span>
               <div class="d-flex mt-auto mb-4">
-              <span class="tag">Category</span>
-            </div>
+                <span class="tag">{{ article.category_name }}</span>
+              </div>
             </div>
           </div>
         </article>
@@ -41,14 +41,39 @@ const { supabase } = useSupabase()
 const { data: articles, pending, error } = useAsyncData('published_articles', async () => {
   const { data, error } = await supabase
     .from('articles')
-    .select('id, title')
-    .eq('visible', true) // assuming 'visible' column indicates published status
+    .select('id, title, created_at, category_id, categories(name)')
+    .eq('visible', true)
     .order('created_at', { ascending: false })
 
   if (error) throw error
 
-  return data
+  // Remap pour avoir article.category_name directement
+  return (data || []).map(article => ({
+    ...article,
+    category_name: article.categories?.name || ''
+  }))
 })
+
+function getCategoryIcon(category) {
+  if (!category) return '/categories/bg_article.png';
+  // Slugify: minuscule, sans espaces, sans accents ni caractères spéciaux
+  const slug = category
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // retire accents
+    .replace(/[^a-z0-9]/g, '');
+  return `/categories/${slug}.png`;
+}
+
+function formatDate(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
 </script>
 
 <style scoped>
