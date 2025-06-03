@@ -64,6 +64,27 @@
             </div>
           </div>
 
+          <!-- Category -->
+          <div class="mb-4">
+            <label for="categorySelect" class="form-label fw-semibold">Category</label>
+            <select
+              id="categorySelect"
+              v-model="form.category_id"
+              class="form-select"
+              :disabled="loadingCategories"
+            >
+              <option value="">Select a category</option>
+              <option v-for="category in categories" :key="category.id" :value="category.id">
+                {{ category.name }}
+              </option>
+            </select>
+            <div v-if="loadingCategories" class="form-text">
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              Loading categories...
+            </div>
+            <div v-else class="form-text">Select a category for this article</div>
+          </div>
+
           <!-- Content -->
           <div class="mb-4">
             <label class="form-label fw-semibold">Content</label>
@@ -103,60 +124,11 @@
 import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import RichTextEditor from '~/components/RichTextEditor.vue'
+import { useSupabase } from '../../../composables/useSupabase'
 
 const router = useRouter()
 const route = useRoute()
-
-// Mock Supabase pour le moment - À remplacer par l'import réel de votre configuration Supabase
-interface SupabaseResponse {
-  data: any;
-  error: Error | null;
-}
-
-interface SupabaseQueryBuilder {
-  select: (fields: string) => {
-    eq: (field: string, value: any) => {
-      single: () => Promise<SupabaseResponse>;
-    };
-  };
-  update: (data: any) => {
-    eq: (field: string, value: any) => Promise<{ error: Error | null }>;
-  };
-  insert: (data: any) => Promise<{ error: Error | null }>;
-}
-
-interface SupabaseClient {
-  auth: {
-    getUser: () => Promise<{ data: { user: { email: string } | null } }>;
-  };
-  from: (table: string) => SupabaseQueryBuilder;
-}
-
-const supabase: SupabaseClient = {
-  auth: {
-    getUser: async () => ({
-      data: { user: { email: 'admin@example.com' } }
-    })
-  },
-  from: () => ({
-    select: () => ({
-      eq: () => ({
-        single: async () => ({
-          data: { 
-            title: '',
-            content: '',
-            visible: false
-          }, 
-          error: null 
-        })
-      })
-    }),
-    update: () => ({
-      eq: () => Promise.resolve({ error: null })
-    }),
-    insert: () => Promise.resolve({ error: null })
-  })
-} as SupabaseClient;
+const { getCurrentUser, getArticle, createArticle, updateArticle, getCategories } = useSupabase()
 
 interface User {
   email: string;
@@ -166,8 +138,14 @@ interface ArticleData {
   title: string;
   content: string;
   visible: boolean;
+  category_id?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 const articleId = route.query.id as string | undefined
@@ -175,8 +153,13 @@ const articleId = route.query.id as string | undefined
 const form = reactive({
   title: '',
   content: '',
+  category_id: '',
   published: false
 })
+
+// Variables pour les catégories
+const categories = ref<Category[]>([])
+const loadingCategories = ref(false)
 
 const saving = ref(false)
 const user = ref<User | null>(null)
@@ -185,37 +168,45 @@ const loadingError = ref<string | null>(null)
 const editorRef = ref<any>(null)
 
 onMounted(async () => {
-  const { data } = await supabase.auth.getUser()
-  user.value = data.user
-  if (!user.value) {
-    router.push('/auth/login')
-  }
-
-  // Si un ID d'article est présent dans l'URL, charger l'article
-  if (articleId) {
-    try {
-      const { data: articleData, error } = await supabase
-        .from('articles')
-        .select('title, content, visible')
-        .eq('id', articleId)
-        .single()
-
-      if (error) {
-        console.error('Error loading article for editing:', error)
-        loadingError.value = error.message // Store the error message
-        // TODO: Afficher une notification d'erreur
-        return
-      }
-
-      if (articleData) {
-        form.title = articleData.title || ''
-        form.content = articleData.content || ''
-        form.published = articleData.visible || false
-      }
-    } catch (e) {
-      console.error('Error in article loading:', e)
-      loadingError.value = 'Failed to load article data'
+  try {
+    // Récupérer l'utilisateur connecté
+    const currentUser = await getCurrentUser()
+    if (currentUser) {
+      user.value = { email: currentUser.email || 'Utilisateur connecté' }
+    } else {
+      router.push('/auth/login')
+      return
     }
+    
+    // Récupérer les catégories
+    loadingCategories.value = true
+    try {
+      categories.value = await getCategories() || []
+    } catch (error: any) {
+      console.error('Error loading categories:', error)
+    } finally {
+      loadingCategories.value = false
+    }
+
+    // Si un ID d'article est présent dans l'URL, charger l'article
+    if (articleId) {
+      try {
+        const articleData = await getArticle(articleId)
+        
+        if (articleData) {
+          form.title = articleData.title || ''
+          form.content = articleData.content || ''
+          form.category_id = articleData.category_id || ''
+          form.published = articleData.visible || false
+        }
+      } catch (error: any) {
+        console.error('Error loading article for editing:', error)
+        loadingError.value = error.message || 'Failed to load article data'
+      }
+    }
+  } catch (error: any) {
+    console.error('Error in onMounted:', error)
+    loadingError.value = error.message || 'An error occurred during initialization'
   }
 })
 
@@ -239,37 +230,32 @@ async function handleSave() {
   try {
     saving.value = true
     
+    // Validation de base
+    if (!form.title.trim()) {
+      alert('Le titre est requis')
+      saving.value = false
+      return
+    }
+    
     const articleData = {
-      title: form.title,
+      title: form.title.trim(),
       content: form.content,
+      category_id: form.category_id || null,
       visible: form.published,
       updated_at: new Date().toISOString()
     }
 
     if (articleId) {
       // Mettre à jour l'article existant
-      const { error } = await supabase
-        .from('articles')
-        .update(articleData)
-        .eq('id', articleId)
-
-      if (error) throw error
-
+      await updateArticle(articleId, articleData)
       console.log('Article updated successfully!')
-      // TODO: Afficher une notification de succès
     } else {
       // Créer un nouvel article
-      const { error } = await supabase
-        .from('articles')
-        .insert({
-          ...articleData,
-          created_at: new Date().toISOString()
-        })
-
-      if (error) throw error
-
+      await createArticle({
+        ...articleData,
+        created_at: new Date().toISOString()
+      })
       console.log('Article created successfully!')
-      // TODO: Afficher une notification de succès
     }
     
     // Nettoyer manuellement l'éditeur avant la navigation
@@ -278,9 +264,9 @@ async function handleSave() {
     }
     // Rediriger vers le dashboard admin après la sauvegarde/mise à jour
     await router.push('/admin')
-  } catch (e: any) {
-    console.error('Error saving article:', e)
-    // TODO: Ajouter une notification d'erreur pour l'utilisateur
+  } catch (error: any) {
+    console.error('Error saving article:', error)
+    alert(`Erreur lors de la sauvegarde: ${error.message || 'Une erreur est survenue'}`)
   } finally {
     saving.value = false
   }
