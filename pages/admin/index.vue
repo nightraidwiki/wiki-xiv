@@ -99,8 +99,34 @@
           <div class="card-header bg-dark-subtle d-flex justify-content-between align-items-center">
             <h2 class="h5 mb-0">Articles</h2>
             <div>
+              <div class="btn-group me-2">
+                <button 
+                  class="btn btn-sm" 
+                  :class="visibilityFilter === null ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setVisibilityFilter(null)"
+                  :disabled="loading"
+                >
+                  All
+                </button>
+                <button 
+                  class="btn btn-sm" 
+                  :class="visibilityFilter === true ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setVisibilityFilter(true)"
+                  :disabled="loading"
+                >
+                  Published
+                </button>
+                <button 
+                  class="btn btn-sm" 
+                  :class="visibilityFilter === false ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setVisibilityFilter(false)"
+                  :disabled="loading"
+                >
+                  Drafts
+                </button>
+              </div>
               <button 
-                @click="refreshArticles" 
+                @click="refreshArticles()" 
                 class="btn btn-sm btn-outline-primary me-2"
                 :disabled="loading"
               >
@@ -122,9 +148,11 @@
               <i class="bi bi-exclamation-triangle-fill me-2"></i>
               {{ error }}
             </div>
-            <div v-else-if="articles.length === 0" class="text-center p-4">
+            <div v-else-if="filteredArticles.length === 0" class="text-center p-4">
               <i class="bi bi-journal-x fs-1 text-muted mb-2"></i>
-              <p class="mb-0">No articles found</p>
+              <p class="mb-0">
+                {{ articles.length === 0 ? 'No articles found' : 'No articles match the selected filter' }}
+              </p>
               <NuxtLink to="/admin/articles/new" class="btn btn-primary btn-sm mt-3">
                 <i class="bi bi-plus-circle me-1"></i> Create your first article
               </NuxtLink>
@@ -142,7 +170,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="article in articles" :key="article.id">
+                  <tr v-for="article in filteredArticles" :key="article.id">
                     <td>{{ article.title }}</td>
                     <td>{{ article.category?.name || 'Uncategorized' }}</td>
                     <td>
@@ -188,15 +216,17 @@ import { useRouter } from 'vue-router'
 import { useSupabase } from '../../composables/useSupabase'
 
 const router = useRouter()
-const { getCurrentUser, getArticles, deleteArticle, signOut } = useSupabase()
+const { getCurrentUser, getArticles, deleteArticle, signOut, supabase } = useSupabase()
 
 // Variables d'état
 const currentUser = ref<any>(null)
 const articles = ref<any[]>([])
+const filteredArticles = ref<any[]>([])
 const categories = ref<any[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showArticlesTable = ref(false)
+const visibilityFilter = ref<boolean | null>(null)
 
 // Fonction pour formater les dates
 const formatDate = (dateString: string) => {
@@ -214,9 +244,46 @@ const formatDate = (dateString: string) => {
 // Fonction pour basculer l'affichage du tableau des articles
 const toggleArticlesTable = async () => {
   showArticlesTable.value = !showArticlesTable.value
-  if (showArticlesTable.value && articles.value.length === 0) {
-    await refreshArticles()
+  if (showArticlesTable.value) {
+    if (articles.value.length === 0) {
+      await refreshArticles()
+    } else {
+      applyFilters()
+    }
   }
+}
+
+// Fonction pour définir le filtre de visibilité
+const setVisibilityFilter = async (value: boolean | null) => {
+  visibilityFilter.value = value
+  // Recharger les articles à chaque changement de filtre
+  await refreshArticles()
+}
+
+// Fonction pour appliquer les filtres aux articles
+const applyFilters = () => {
+  console.log('Début applyFilters - Filtre:', visibilityFilter.value);
+  console.log('Articles avant filtrage:', articles.value.map(a => ({ id: a.id, title: a.title, visible: a.visible })));
+  
+  if (visibilityFilter.value === null) {
+    // Tous les articles
+    filteredArticles.value = [...articles.value];
+  } else if (visibilityFilter.value === false) {
+    // Articles brouillons (non publiés)
+    filteredArticles.value = articles.value.filter(article => {
+      // Pour les brouillons, on veut visible === false
+      // Conversion explicite pour éviter les problèmes avec null/undefined
+      return article.visible === false;
+    });
+  } else {
+    // Articles publiés
+    filteredArticles.value = articles.value.filter(article => {
+      // Pour les publiés, on veut visible === true
+      return article.visible === true;
+    });
+  }
+  
+  console.log('Articles après filtrage:', filteredArticles.value.map(a => ({ id: a.id, title: a.title, visible: a.visible })));
 }
 
 // Fonction pour rafraîchir la liste des articles
@@ -225,7 +292,35 @@ const refreshArticles = async () => {
   error.value = null
   
   try {
-    articles.value = await getArticles() || []
+    // Utiliser directement supabase pour avoir un contrôle complet sur la requête
+    let query = supabase
+      .from('articles')
+      .select('*, category:categories(*)')
+    
+    // Appliquer le filtre de visibilité directement dans la requête SQL
+    if (visibilityFilter.value === true) {
+      // Articles publiés
+      query = query.eq('visible', true)
+    } else if (visibilityFilter.value === false) {
+      // Articles brouillons - spécifiquement false (pas null ou undefined)
+      query = query.eq('visible', false)
+    }
+    // Si visibilityFilter.value === null, on ne filtre pas et on récupère tous les articles
+    
+    // Tri par date de création
+    query = query.order('created_at', { ascending: false })
+    
+    const { data, error: supabaseError } = await query
+    
+    if (supabaseError) throw supabaseError
+    
+    articles.value = data || []
+    // Mettre à jour directement filteredArticles pour l'affichage
+    filteredArticles.value = [...articles.value]
+    
+    console.log('Articles récupérés avec filtre:', visibilityFilter.value)
+    console.log('Nombre d\'articles:', articles.value.length)
+    console.log('Statuts de visibilité:', articles.value.map(a => a.visible))
   } catch (err: any) {
     console.error('Error loading articles:', err)
     error.value = err.message || 'Failed to load articles'
