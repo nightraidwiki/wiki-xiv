@@ -2,6 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col-6 mb-4" v-for="article in articles" :key="article.id">
+      <NuxtLink :to="`/articles/${article.id}`" class="css_article_link">
         <article class="flex css_article_bloc">
           <div class="d-flex css_info_article">
             <!-- Icône de la catégorie dynamique -->
@@ -15,7 +16,8 @@
             </div>
           </div>
         </article>
-      </div>
+      </NuxtLink>
+    </div>
     </div>
   </div>
   <div class="p-8">
@@ -108,4 +110,17 @@ function formatDate(dateString) {
   border-radius: 2px;
   padding: 0 6px;
 }
-</style> 
+.css_article_link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.css_article_bloc {
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.css_article_link:hover .css_article_bloc {
+  box-shadow: 0 0 12px 0 #a259ec99;
+  border-color: #a259ec;
+  cursor: pointer;
+}
+</style>
