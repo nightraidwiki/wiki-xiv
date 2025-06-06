@@ -4,6 +4,7 @@
       <div class="col-6 mb-4" v-for="article in articles" :key="article.id">
       <NuxtLink :to="`/articles/${article.id}`" class="css_article_link">
         <article class="flex css_article_bloc">
+          <img src="/public/categories/ysh.png" class="css_banner_char">
           <div class="d-flex css_info_article">
             <!-- Icône de la catégorie dynamique -->
             <img :src="getCategoryIcon(article.category_name)" :alt="article.category_name" class="css_icon_article">
@@ -84,6 +85,14 @@ function formatDate(dateString) {
   border: 1px solid #ccc;
   background-image: url('/public/categories/bg_article.png');
   height: 160px;
+  position: relative;
+  overflow: hidden;
+}
+.css_article_bloc img.css_banner_char {
+  position: absolute;
+  height: 550px;
+  top: -66px;
+  left: -186px;
 }
 .css_article_bloc h4 {
   color: #8788ee;
