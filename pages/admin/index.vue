@@ -16,7 +16,14 @@
             class="btn btn-primary"
           >
             <i class="bi bi-plus-circle me-1"></i> New Category
-          </NuxtLink>          <button
+          </NuxtLink>
+          <NuxtLink 
+            to="/admin/tags/new"
+            class="btn btn-primary"
+          >
+            <i class="bi bi-plus-circle me-1"></i> New Tag
+          </NuxtLink>
+          <button
             @click="handleLogout"
             class="btn btn-outline-danger"
           >
@@ -48,7 +55,7 @@
 
         <!-- Stats Cards -->
         <div class="col-md-6 col-lg-4">
-          <div class="card h-100 cursor-pointer" @click="toggleArticlesTable">
+          <div class="card h-100 cursor-pointer" @click="onClickArticlesCard">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="h6 mb-0">Total Articles</h3>
@@ -61,9 +68,24 @@
             </div>
           </div>
         </div>
+        <!-- Total Tags Card -->
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 cursor-pointer" @click="onClickTagsCard">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h6 mb-0">Total Tags</h3>
+                <div class="bg-warning bg-opacity-10 p-2 rounded">
+                  <i class="bi bi-tag text-warning"></i>
+                </div>
+              </div>
+              <p class="h2 mb-0">{{ tags.length }}</p>
+              <small class="text-muted">Click to view all tags</small>
+            </div>
+          </div>
+        </div>
 
         <div class="col-md-6 col-lg-4">
-          <div class="card h-100">
+          <div class="card h-100 cursor-pointer" @click="onClickCategoriesCard">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="h6 mb-0">Categories</h3>
@@ -71,8 +93,8 @@
                   <i class="bi bi-tags text-success"></i>
                 </div>
               </div>
-              <p class="h2 mb-0">0</p>
-              <small class="text-muted">0% from last month</small>
+              <p class="h2 mb-0">{{ categories.length }}</p>
+              <small class="text-muted">Click to view all categories</small>
             </div>
           </div>
         </div>
@@ -88,6 +110,96 @@
               </div>
               <p class="h2 mb-0">1</p>
               <small class="text-muted">You</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Table -->
+      <div v-if="showCategoriesTable" class="mt-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark-subtle d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Categories</h2>
+            <NuxtLink to="/admin/categories/new" class="btn btn-primary btn-sm">
+              <i class="bi bi-plus-circle me-1"></i> Nouvelle catégorie
+            </NuxtLink>
+          </div>
+          <div class="card-body p-0">
+            <div v-if="loadingCategories" class="text-center p-4">
+              <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2 mb-0">Chargement des catégories...</p>
+            </div>
+            <div v-else-if="categoriesError" class="alert alert-danger m-3">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              {{ categoriesError }}
+            </div>
+            <div v-else-if="categories.length === 0" class="text-center p-4">
+              <i class="bi bi-tags-x fs-1 text-muted mb-2"></i>
+              <p class="mb-0">Aucune catégorie pour le moment</p>
+              <NuxtLink to="/admin/categories/new" class="btn btn-primary btn-sm mt-3">
+                <i class="bi bi-plus-circle me-1"></i> Créer une catégorie
+              </NuxtLink>
+            </div>
+            <div v-else class="table-responsive">
+              <table class="table table-hover table-dark mb-0">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="cat in categories" :key="cat.id">
+                    <td>{{ cat.name }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!-- Tags Table -->
+      <div v-if="showTagsTable" class="mt-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark-subtle d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Tags</h2>
+            <NuxtLink to="/admin/tags/new" class="btn btn-primary btn-sm">
+              <i class="bi bi-plus-circle me-1"></i> Nouveau tag
+            </NuxtLink>
+          </div>
+          <div class="card-body p-0">
+            <div v-if="loadingTags" class="text-center p-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2 mb-0">Chargement des tags...</p>
+            </div>
+            <div v-else-if="tagsError" class="alert alert-danger m-3">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              {{ tagsError }}
+            </div>
+            <div v-else-if="tags.length === 0" class="text-center p-4">
+              <i class="bi bi-tag-x fs-1 text-muted mb-2"></i>
+              <p class="mb-0">Aucun tag pour le moment</p>
+              <NuxtLink to="/admin/tags/new" class="btn btn-primary btn-sm mt-3">
+                <i class="bi bi-plus-circle me-1"></i> Créer un tag
+              </NuxtLink>
+            </div>
+            <div v-else class="table-responsive">
+              <table class="table table-hover table-dark mb-0">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="tag in tags" :key="tag.id">
+                    <td>{{ tag.name }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -226,6 +338,46 @@ const categories = ref<any[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showArticlesTable = ref(false)
+const showTagsTable = ref(false)
+const showCategoriesTable = ref(false)
+
+const loadingCategories = ref(false)
+
+function onClickArticlesCard() {
+  showArticlesTable.value = true;
+  showTagsTable.value = false;
+  showCategoriesTable.value = false;
+}
+
+function onClickTagsCard() {
+  showTagsTable.value = true;
+  showArticlesTable.value = false;
+  showCategoriesTable.value = false;
+}
+
+function onClickCategoriesCard() {
+  showCategoriesTable.value = true;
+  showArticlesTable.value = false;
+  showTagsTable.value = false;
+  refreshCategories();
+}
+const categoriesError = ref<string | null>(null)
+
+const refreshCategories = async () => {
+  loadingCategories.value = true
+  categoriesError.value = null
+  try {
+    const { data, error: supabaseError } = await supabase
+      .from('categories')
+      .select('*')
+    if (supabaseError) throw supabaseError
+    categories.value = data || []
+  } catch (err: any) {
+    categoriesError.value = err.message || 'Erreur lors du chargement des catégories'
+  } finally {
+    loadingCategories.value = false
+  }
+}
 const visibilityFilter = ref<boolean | null>(null)
 
 // Fonction pour formater les dates
@@ -371,6 +523,47 @@ onMounted(async () => {
     
     // Charger les articles
     await refreshArticles()
+  } catch (err: any) {
+    console.error('Error initializing dashboard:', err)
+  }
+})
+// ----- TAGS -----
+const tags = ref<any[]>([])
+const loadingTags = ref(false)
+const tagsError = ref<string | null>(null)
+
+const refreshTags = async () => {
+  loadingTags.value = true
+  tagsError.value = null
+  try {
+    const { data, error: supabaseError } = await supabase
+      .from('tags')
+      .select('*')
+    if (supabaseError) throw supabaseError
+    tags.value = data || []
+  } catch (err: any) {
+    tagsError.value = err.message || 'Erreur lors du chargement des tags'
+  } finally {
+    loadingTags.value = false
+  }
+}
+
+// Initialisation
+onMounted(async () => {
+  try {
+    // Récupérer l'utilisateur connecté
+    const user = await getCurrentUser()
+    if (user) {
+      currentUser.value = { email: user.email || 'Utilisateur connecté' }
+    } else {
+      router.push('/auth/login')
+      return
+    }
+    // Charger les articles
+    await refreshArticles()
+    // Charger les tags
+    await refreshTags()
+    // NE PAS charger les catégories ici, uniquement au clic
   } catch (err: any) {
     console.error('Error initializing dashboard:', err)
   }
