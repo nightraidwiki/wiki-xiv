@@ -5,12 +5,15 @@
       <div class="row justify-content-center">
         <div class="col-lg-8">
           <h1 class="display-3 fw-bold mb-4">
-            <img src="/public/logo.png" alt="Wiki XIV" class="img-fluid">
+            <img src="/public/logo.png" alt="Wiki XIV" class="" style="height: 250px;">
           </h1>
-          <p class="lead text-muted mb-5">
-            Your modern and intuitive documentation platform. Explore our knowledge base and stay informed.
+          <p>
+            We're not lazy, we're just conserving energy.
+            <br></br>
             <br>
-            Every raidplan that we used can be found here <a href="https://mczub.github.io/wtfdig/">https://mczub.github.io/wtfdig/</a>
+            Every raidplan that we used can be found here 
+            <br>
+            <a href="https://mczub.github.io/wtfdig/">https://mczub.github.io/wtfdig/</a>
           </p>
           
         </div>
@@ -28,7 +31,7 @@
                 <span class="text-primary me-2">📚</span>
                 Documentation
               </h3>
-              <p class="card-text text-muted">Access comprehensive and structured documentation</p>
+              <p class="card-text text-muted">Access to docs for Tools and Plugins</p>
             </div>
           </NuxtLink>
         </div>
