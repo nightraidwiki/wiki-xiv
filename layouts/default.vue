@@ -11,11 +11,12 @@
 
           <!-- Navigation Links -->
           <div class="flex gap-4">
-            <NuxtLink 
-              to="/auth/login"
+            <NuxtLink
+              v-if="currentUser"
+              to="/admin"
               class="btn btn-primary"
             >
-              Connexion Admin
+              Dashboard
             </NuxtLink>
           </div>
         </div>
@@ -30,11 +31,28 @@
     <!-- Footer -->
     <footer class="footer">
       <div class="container text-center">
-        <p>&copy; {{ new Date().getFullYear() }} Wiki XIV. Tous droits réservés.</p>
+        <p>&copy; {{ new Date().getFullYear() }} Wiki XIV. All rights reserved.</p>
       </div>
     </footer>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useSupabase } from '~/composables/useSupabase'
+
+const currentUser = ref(null)
+
+onMounted(async () => {
+  const { getCurrentUser, supabase } = useSupabase()
+  const user = await getCurrentUser()
+  currentUser.value = user
+  // Ecoute la déconnexion/reconnexion
+  supabase.auth.onAuthStateChange((_event, session) => {
+    currentUser.value = session?.user || null
+  })
+})
+</script>
 
 <style>
 .layout {
