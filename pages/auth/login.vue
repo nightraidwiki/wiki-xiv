@@ -82,32 +82,34 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 
-// Fonction de connexion temporaire - À remplacer par votre logique d'authentification
+import { useSupabase } from '~/composables/useSupabase'
+
+const { supabase } = useSupabase()
+
 async function handleLogin() {
   try {
     loading.value = true
     error.value = ''
-    
-    // Exemple de validation côté client
+    // Validation côté client
     if (!email.value || !email.value.includes('@')) {
       error.value = 'Please enter a valid email address.'
       return
     }
-    
     if (!password.value) {
       error.value = 'Please enter your password.'
       return
     }
-    
-    // Ici, vous devriez appeler votre service d'authentification
-    // Par exemple: const { user } = await authService.login(email.value, password.value)
-    
-    // Simulation de délai pour le chargement
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Redirection après connexion réussie
+    // Authentification réelle avec Supabase
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value
+    })
+    if (loginError) {
+      error.value = loginError.message || 'Invalid credentials.'
+      return
+    }
+    // Redirection si succès
     await router.push('/admin')
-    
   } catch (e: any) {
     error.value = e.message || 'An error occurred during login.'
   } finally {

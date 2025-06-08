@@ -45,11 +45,21 @@ const currentUser = ref(null)
 
 onMounted(async () => {
   const { getCurrentUser, supabase } = useSupabase()
-  const user = await getCurrentUser()
-  currentUser.value = user
+  // Attendre explicitement la restauration de session côté client
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session) {
+    const user = await getCurrentUser()
+    currentUser.value = user
+  } else {
+    currentUser.value = null
+  }
   // Ecoute la déconnexion/reconnexion
-  supabase.auth.onAuthStateChange((_event, session) => {
-    currentUser.value = session?.user || null
+  supabase.auth.onAuthStateChange(async (_event, session) => {
+    if (session && session.user) {
+      currentUser.value = session.user
+    } else {
+      currentUser.value = null
+    }
   })
 })
 </script>
