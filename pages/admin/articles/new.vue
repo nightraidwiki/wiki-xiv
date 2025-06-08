@@ -85,6 +85,28 @@
             <div v-else class="form-text">Select a category for this article</div>
           </div>
 
+          <!-- Tags -->
+          <div class="mb-4">
+            <label for="tagsSelect" class="form-label fw-semibold">Tags</label>
+            <select
+              id="tagsSelect"
+              v-model="selectedTags"
+              class="form-select"
+              multiple
+              :disabled="loadingTags"
+              style="min-height: 90px"
+            >
+              <option v-for="tag in tags" :key="tag.id" :value="tag.id">
+                {{ tag.name }}
+              </option>
+            </select>
+            <div v-if="loadingTags" class="form-text">
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              Chargement des tags...
+            </div>
+            <div v-else class="form-text">Sélectionnez un ou plusieurs tags pour cet article</div>
+          </div>
+
           <!-- Content -->
           <div class="mb-4">
             <label class="form-label fw-semibold">Content</label>
@@ -94,6 +116,28 @@
               ref="editorRef"
               class="border rounded p-2"
             />
+          </div>
+
+          <!-- Tags -->
+          <div class="mb-4">
+            <label for="tagsSelect" class="form-label fw-semibold">Tags</label>
+            <select
+              id="tagsSelect"
+              v-model="selectedTags"
+              class="form-select"
+              multiple
+              :disabled="loadingTags"
+              style="min-height: 90px"
+            >
+              <option v-for="tag in tags" :key="tag.id" :value="tag.id">
+                {{ tag.name }}
+              </option>
+            </select>
+            <div v-if="loadingTags" class="form-text">
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              Chargement des tags...
+            </div>
+            <div v-else class="form-text">Sélectionnez un ou plusieurs tags pour cet article</div>
           </div>
 
           <!-- Published -->
@@ -161,6 +205,11 @@ const form = reactive({
 const categories = ref<Category[]>([])
 const loadingCategories = ref(false)
 
+// Variables pour les tags
+const tags = ref<any[]>([])
+const loadingTags = ref(false)
+const selectedTags = ref<string[]>([])
+
 const saving = ref(false)
 const user = ref<User | null>(null)
 const loadingError = ref<string | null>(null)
@@ -177,7 +226,6 @@ onMounted(async () => {
       router.push('/auth/login')
       return
     }
-    
     // Récupérer les catégories
     loadingCategories.value = true
     try {
@@ -187,17 +235,35 @@ onMounted(async () => {
     } finally {
       loadingCategories.value = false
     }
-
+    // Récupérer les tags
+    loadingTags.value = true
+    try {
+      const { supabase } = useSupabase()
+      const { data, error } = await supabase.from('tags').select('*')
+      if (error) throw error
+      tags.value = data || []
+    } catch (error: any) {
+      console.error('Error loading tags:', error)
+    } finally {
+      loadingTags.value = false
+    }
     // Si un ID d'article est présent dans l'URL, charger l'article
     if (articleId) {
       try {
         const articleData = await getArticle(articleId)
-        
         if (articleData) {
           form.title = articleData.title || ''
           form.content = articleData.content || ''
           form.category_id = articleData.category_id || ''
           form.published = articleData.visible || false
+          // Charger les tags liés à l'article
+          const { supabase } = useSupabase()
+          const { data: tagLinks, error: tagLinksError } = await supabase
+            .from('article_tags')
+            .select('tag_id')
+            .eq('article_id', articleId)
+          if (tagLinksError) throw tagLinksError
+          selectedTags.value = (tagLinks || []).map((t: any) => t.tag_id)
         }
       } catch (error: any) {
         console.error('Error loading article for editing:', error)
@@ -229,14 +295,13 @@ watch([() => form.content, editorRef], ([newContent, editorComponent]) => {
 async function handleSave() {
   try {
     saving.value = true
-    
+    const { supabase } = useSupabase()
     // Validation de base
     if (!form.title.trim()) {
       alert('Le titre est requis')
       saving.value = false
       return
     }
-    
     const articleData = {
       title: form.title.trim(),
       content: form.content,
@@ -244,20 +309,34 @@ async function handleSave() {
       visible: form.published,
       updated_at: new Date().toISOString()
     }
-
+    let savedArticleId = articleId
     if (articleId) {
       // Mettre à jour l'article existant
       await updateArticle(articleId, articleData)
+      // Synchroniser les tags (supprimer les anciens, ajouter les nouveaux)
+      // 1. Supprimer les liaisons existantes non sélectionnées
+      await supabase.from('article_tags').delete().eq('article_id', articleId)
+      // 2. Ajouter les nouvelles liaisons
+      if (selectedTags.value.length > 0) {
+        const links = selectedTags.value.map(tagId => ({ article_id: articleId, tag_id: tagId }))
+        await supabase.from('article_tags').insert(links)
+      }
       console.log('Article updated successfully!')
     } else {
       // Créer un nouvel article
-      await createArticle({
+      const { data, error } = await supabase.from('articles').insert({
         ...articleData,
         created_at: new Date().toISOString()
-      })
+      }).select('id').single()
+      if (error) throw error
+      savedArticleId = data.id
+      // Ajouter les liaisons tags
+      if (selectedTags.value.length > 0) {
+        const links = selectedTags.value.map(tagId => ({ article_id: savedArticleId, tag_id: tagId }))
+        await supabase.from('article_tags').insert(links)
+      }
       console.log('Article created successfully!')
     }
-    
     // Nettoyer manuellement l'éditeur avant la navigation
     if (editorRef.value) {
       editorRef.value.cleanupEditor?.()
@@ -271,6 +350,7 @@ async function handleSave() {
     saving.value = false
   }
 }
+
 </script>
 
 <style scoped>
