@@ -25,7 +25,7 @@
 
       <!-- Features -->
       <div class="row g-4 mt-5">
-        <div class="col-md-4">
+        <div class="col-12 col-md-4 m-auto">
           <NuxtLink 
             to="/articles"
             class="card h-100 text-decoration-none text-reset hover-shadow"
@@ -40,29 +40,6 @@
           </NuxtLink>
         </div>
         
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-body text-center p-4">
-              <h3 class="h4 card-title mb-3">
-                <span class="text-primary me-2">🔍</span>
-                Search
-              </h3>
-              <p class="card-text text-muted">Quickly find the information you need</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-body text-center p-4">
-              <h3 class="h4 card-title mb-3">
-                <span class="text-primary me-2">✨</span>
-                Interface
-              </h3>
-              <p class="card-text text-muted">A modern and intuitive user experience</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
