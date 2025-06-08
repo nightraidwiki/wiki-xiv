@@ -6,7 +6,7 @@
         <div class="flex items-center justify-content-between nav-content">
           <!-- Logo -->
           <NuxtLink to="/" class="logo">
-            Wiki XIV
+            <img src="/public/logo.png" alt="Wiki XIV" class="" style="height: 60px;">
           </NuxtLink>
 
           <!-- Navigation Links -->
