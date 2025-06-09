@@ -24,6 +24,12 @@
             <i class="bi bi-plus-circle me-1"></i> New Tag
           </NuxtLink>
           <button
+            @click="showBannerModal = true"
+            class="btn btn-primary"
+          >
+            <i class="bi bi-plus-circle me-1"></i> Nouvelle image banner
+          </button>
+          <button
             @click="handleLogout"
             class="btn btn-outline-danger"
           >
@@ -32,8 +38,41 @@
         </div>
       </header>
 
+      <!-- Modal Upload Banner -->
+      <div v-if="showBannerModal" class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+          <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+              <h5 class="modal-title">Uploader une image banner</h5>
+              <button type="button" class="btn-close btn-close-white" @click="showBannerModal = false" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="handleBannerUpload">
+                <div class="mb-3">
+                  <input type="file" accept="image/*" @change="onBannerFileChange" ref="bannerInput" class="form-control" :disabled="bannerUploading" />
+                </div>
+                <div v-if="bannerPreview" class="mb-3">
+                  <img :src="bannerPreview" alt="Aperçu" style="max-width: 300px; max-height: 150px; border-radius: 8px;" />
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <button type="submit" class="btn btn-success" :disabled="bannerUploading || !bannerFile">Uploader</button>
+                  <span v-if="bannerUploading" class="spinner-border spinner-border-sm text-success"></span>
+                  <span v-if="bannerError" class="text-danger ms-2">{{ bannerError }}</span>
+                  <span v-if="bannerSuccess" class="text-success ms-2">Image uploadée !</span>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @click="showBannerModal = false">Fermer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Main Content -->
       <div class="row g-4">
+
+        
         <!-- Welcome Card -->
         <div class="col-12">
           <div class="card bg-dark-subtle">
@@ -324,11 +363,69 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useSupabase } from '../../composables/useSupabase'
+const { supabase } = useSupabase()
+
+// --- Banner Upload Logic ---
+const showBannerModal = ref(false)
+const bannerFile = ref<File|null>(null)
+const bannerPreview = ref<string|null>(null)
+const bannerUploading = ref(false)
+const bannerError = ref<string|null>(null)
+const bannerSuccess = ref(false)
+const bannerInput = ref<HTMLInputElement|null>(null)
+
+function onBannerFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    bannerFile.value = input.files[0]
+    bannerPreview.value = URL.createObjectURL(input.files[0])
+    bannerError.value = null
+    bannerSuccess.value = false
+  }
+}
+
+async function handleBannerUpload() {
+  if (!bannerFile.value) return
+  bannerUploading.value = true
+  bannerError.value = null
+  bannerSuccess.value = false
+  try {
+    // 1. Upload to Supabase Storage (bucket: 'banners')
+    const file = bannerFile.value
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+    const { data: uploadData, error: uploadError } = await supabase.storage.from('banners').upload(fileName, file)
+    if (uploadError) throw uploadError
+
+    // 2. Get public URL
+    const { data: publicUrlData } = supabase.storage.from('banners').getPublicUrl(fileName)
+    const imageUrl = publicUrlData.publicUrl
+
+    // 3. Insert into images_banner
+    const { error: insertError } = await supabase.from('images_banner').insert([{ image: imageUrl }])
+    if (insertError) throw insertError
+
+    bannerSuccess.value = true
+    bannerFile.value = null
+    bannerPreview.value = null
+    if (bannerInput.value) bannerInput.value.value = ''
+    // Fermer le modal après succès
+    setTimeout(() => {
+      showBannerModal.value = false
+      bannerSuccess.value = false
+    }, 1200)
+  } catch (err: any) {
+    bannerError.value = err.message || 'Erreur lors de l\'upload'
+  } finally {
+    bannerUploading.value = false
+  }
+}
+
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const { getCurrentUser, getArticles, deleteArticle, signOut, supabase } = useSupabase()
+const { getCurrentUser, getArticles, deleteArticle, signOut } = useSupabase()
 
 // Variables d'état
 const currentUser = ref<any>(null)
