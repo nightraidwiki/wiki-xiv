@@ -4,6 +4,22 @@
   </NuxtLayout>
 </template>
 
+<script setup lang="ts">
+import { useHead } from '#imports'
+
+useHead({
+  title: 'Wiki XIV',
+  meta: [
+    { property: 'og:title', content: 'Wiki XIV' },
+    { property: 'og:site_name', content: 'Wiki XIV' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:image', content: '/logo.png' },
+    { property: 'og:image:alt', content: 'Logo Wiki XIV' },
+  ]
+})
+
+</script>
+
 <style>
 /* Import de la police Inter */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
