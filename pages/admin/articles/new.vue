@@ -64,6 +64,39 @@
             </div>
           </div>
 
+          <!-- Banner Image -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Image banner</label>
+            <div v-if="loadingBanners" class="form-text mb-2">
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              Chargement des images banner...
+            </div>
+            <div v-else class="d-flex flex-wrap gap-3">
+              <div
+                v-for="banner in banners"
+                :key="banner.id"
+                class="banner-thumb position-relative"
+                :class="{ selected: form.banner_id === banner.id }"
+                @click="form.banner_id = banner.id"
+                style="cursor:pointer; border-radius:10px; border:2px solid transparent; transition: border 0.2s;"
+              >
+                <img :src="banner.image" alt="banner" style="width: 180px; height: 80px; object-fit:cover; border-radius:8px; border:1px solid #444;" />
+                <span v-if="form.banner_id === banner.id" class="position-absolute top-0 end-0 bg-success text-white px-2 py-1 rounded-bottom-start small" style="font-size:0.8em;">Sélectionnée</span>
+              </div>
+              <div
+                class="banner-thumb"
+                :class="{ selected: !form.banner_id }"
+                @click="form.banner_id = ''"
+                style="display:flex; align-items:center; justify-content:center; width:180px; height:80px; border:2px dashed #888; border-radius:10px; cursor:pointer; color:#888;"
+              >
+                Aucune image
+              </div>
+            </div>
+            <div class="form-text mt-2">Cliquez sur une image pour la sélectionner (optionnel)</div>
+          </div>
+
+
+
           <!-- Category -->
           <div class="mb-4">
             <label for="categorySelect" class="form-label fw-semibold">Category</label>
@@ -165,8 +198,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, watch, nextTick, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
 import RichTextEditor from '~/components/RichTextEditor.vue'
 import { useSupabase } from '../../../composables/useSupabase'
 
@@ -188,6 +222,9 @@ interface ArticleData {
 }
 
 interface Category {
+
+// --- Style déplacé à la fin du fichier ---
+
   id: string;
   name: string;
 }
@@ -198,7 +235,16 @@ const form = reactive({
   title: '',
   content: '',
   category_id: '',
+  banner_id: '',
   published: false
+})
+
+// Variables pour les images banner
+const banners = ref<any[]>([])
+const loadingBanners = ref(false)
+const selectedBannerImage = computed(() => {
+  const banner = banners.value.find(b => b.id === form.banner_id)
+  return banner ? banner.image : null
 })
 
 // Variables pour les catégories
@@ -217,6 +263,19 @@ const loadingError = ref<string | null>(null)
 const editorRef = ref<any>(null)
 
 onMounted(async () => {
+  // Charger les images banner
+  loadingBanners.value = true
+  try {
+    const { supabase } = useSupabase()
+    const { data, error } = await supabase.from('images_banner').select('*').order('id', { ascending: false })
+    if (error) throw error
+    banners.value = data || []
+  } catch (err) {
+    console.error('Erreur lors du chargement des images banner:', err)
+  } finally {
+    loadingBanners.value = false
+  }
+
   try {
     // Récupérer l'utilisateur connecté
     const currentUser = await getCurrentUser()
@@ -255,6 +314,7 @@ onMounted(async () => {
           form.title = articleData.title || ''
           form.content = articleData.content || ''
           form.category_id = articleData.category_id || ''
+          form.banner_id = articleData.banner_id || ''
           form.published = articleData.visible || false
           // Charger les tags liés à l'article
           const { supabase } = useSupabase()
@@ -306,6 +366,7 @@ async function handleSave() {
       title: form.title.trim(),
       content: form.content,
       category_id: form.category_id || null,
+      banner_id: form.banner_id || null,
       visible: form.published,
       updated_at: new Date().toISOString()
     }
