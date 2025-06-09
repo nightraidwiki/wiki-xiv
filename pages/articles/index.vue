@@ -55,7 +55,10 @@ const { supabase } = useSupabase()
 const { data: articles, pending, error } = useAsyncData('published_articles', async () => {
   // Charger articles et banners en parallèle
   const [articlesRes, bannersRes] = await Promise.all([
-    supabase.from('articles').select('*').eq('visible', true).order('created_at', { ascending: false }),
+    supabase.from('articles')
+      .select('*, categories(name), article_tags(tag_id, tags(name))')
+      .eq('visible', true)
+      .order('created_at', { ascending: false }),
     supabase.from('images_banner').select('id, image')
   ])
   const articlesData = articlesRes.data || []
@@ -63,7 +66,7 @@ const { data: articles, pending, error } = useAsyncData('published_articles', as
   // Log pour debug
   console.log('Articles récupérés :', articlesData)
   console.log('Banners récupérés :', bannersData)
-  // Ajoute banner_url à chaque article
+  // Ajoute banner_url à chaque article, et remap category_name/tags
   return articlesData.map(article => ({
     ...article,
     banner_url: article.banner_id ? (bannersData.find(b => b.id === article.banner_id)?.image || '') : '',
