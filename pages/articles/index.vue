@@ -26,7 +26,7 @@
       <div class="col-12 col-lg-6 mb-4" v-for="article in filteredArticles" :key="article.id">
       <NuxtLink :to="`/articles/${article.id}`" class="css_article_link">
         <article class="flex css_article_bloc">
-          <img src="/public/categories/ysh.png" class="css_banner_char">
+          <img v-if="article.banner_url" :src="article.banner_url" class="css_banner_char">
           <div class="d-flex css_info_article">
             <!-- Icône de la catégorie dynamique -->
             <img :src="getCategoryIcon(article.category_name)" :alt="article.category_name" class="css_icon_article">
@@ -48,21 +48,25 @@
 
 <script setup lang="ts">
 import { useSupabase } from '~/composables/useSupabase'
+import { ref, onMounted } from 'vue'
 
 const { supabase } = useSupabase()
 
 const { data: articles, pending, error } = useAsyncData('published_articles', async () => {
-  const { data, error } = await supabase
-    .from('articles')
-    .select(`id, title, created_at, category_id, categories(name), article_tags(tag_id, tags(name))`)
-    .eq('visible', true)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-
-  // Remap pour avoir article.category_name et un tableau de tags
-  return (data || []).map(article => ({
+  // Charger articles et banners en parallèle
+  const [articlesRes, bannersRes] = await Promise.all([
+    supabase.from('articles').select('*').eq('visible', true).order('created_at', { ascending: false }),
+    supabase.from('images_banner').select('id, image')
+  ])
+  const articlesData = articlesRes.data || []
+  const bannersData = bannersRes.data || []
+  // Log pour debug
+  console.log('Articles récupérés :', articlesData)
+  console.log('Banners récupérés :', bannersData)
+  // Ajoute banner_url à chaque article
+  return articlesData.map(article => ({
     ...article,
+    banner_url: article.banner_id ? (bannersData.find(b => b.id === article.banner_id)?.image || '') : '',
     category_name: article.categories?.name || '',
     tags: (article.article_tags || []).map(at => at.tags?.name).filter(Boolean)
   }))
@@ -142,9 +146,6 @@ function formatDate(dateString) {
 }
 .css_article_bloc img.css_banner_char {
   position: absolute;
-  height: 550px;
-  top: -66px;
-  left: -186px;
 }
 .css_article_bloc h4 {
   color: #8788ee;
