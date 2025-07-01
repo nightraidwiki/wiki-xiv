@@ -51,4 +51,9 @@ const { data: article, pending, error } = useAsyncData(`article-${articleId}`, a
 
 <style scoped>
 /* Ajoutez des styles si nécessaire */
+pre {
+  background: #1c1c1c;
+  color: #d63384;
+  padding: 1rem;
+}
 </style> 
