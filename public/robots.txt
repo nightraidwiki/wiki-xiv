@@ -1,2 +1,7 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://wiki-xiv.netlify.app/sitemap.xml
