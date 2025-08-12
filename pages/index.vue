@@ -5,15 +5,16 @@
       <div class="row justify-content-center">
         <div class="col-lg-8">
           <h1 class="display-3 fw-bold mb-4">
-            <img src="/public/logo.png" alt="Wiki XIV" class="" style="height: 250px;">
+            <img src="/public/logo.png" alt="Wiki XIV" class="" style="height: 400px;">
           </h1>
           <p>
-            We're not lazy, we're just conserving energy.
+            A game that more people can actually play with this tools.
             <br></br>
             <br>
-            Every raidplan that we used can be found here 
-            <br>
+            Raidplan:
             <a href="https://mczub.github.io/wtfdig/">https://mczub.github.io/wtfdig/</a>
+            <br>
+            Discord time format: <a href="https://www.hammertime.cyou/">https://www.hammertime.cyou/</a>
           </p>
           
         </div>
