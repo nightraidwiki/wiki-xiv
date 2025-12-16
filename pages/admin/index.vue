@@ -30,6 +30,14 @@
             <i class="bi bi-plus-circle me-1"></i> Nouvelle image banner
           </button>
           <button
+            @click="handleGenerateSlugs"
+            class="btn btn-warning"
+            :disabled="generatingSlugs"
+          >
+            <span v-if="generatingSlugs" class="spinner-border spinner-border-sm me-1"></span>
+            <i v-else class="bi bi-link-45deg me-1"></i> Générer Slugs
+          </button>
+          <button
             @click="handleLogout"
             class="btn btn-outline-danger"
           >
@@ -437,6 +445,66 @@ const error = ref<string | null>(null)
 const showArticlesTable = ref(false)
 const showTagsTable = ref(false)
 const showCategoriesTable = ref(false)
+const generatingSlugs = ref(false)
+
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .trim()
+}
+
+async function handleGenerateSlugs() {
+  if (!confirm('Voulez-vous régénérer les slugs pour TOUS les articles ? Cela peut impacter le SEO des liens existants.')) return
+  
+  generatingSlugs.value = true
+  let successCount = 0
+  let failCount = 0
+
+  try {
+    // 1. Récupérer tous les articles (sans filtre)
+    const { data: allArticles, error: fetchError } = await supabase
+      .from('articles')
+      .select('id, title')
+    
+    if (fetchError) throw fetchError
+    if (!allArticles || allArticles.length === 0) {
+      alert('Aucun article trouvé.')
+      return
+    }
+
+    // 2. Mettre à jour chaque article
+    for (const art of allArticles) {
+      const newSlug = slugify(art.title)
+      const { error: updateError } = await supabase
+        .from('articles')
+        .update({ slug: newSlug })
+        .eq('id', art.id)
+      
+      if (updateError) {
+        console.error(`Erreur update slug article ${art.id}:`, updateError)
+        failCount++
+      } else {
+        successCount++
+      }
+    }
+
+    alert(`Opération terminée.\nSuccès: ${successCount}\nÉchecs: ${failCount}`)
+    await refreshArticles()
+
+  } catch (err: any) {
+    console.error('Erreur globale generation slugs:', err)
+    alert('Erreur: ' + err.message)
+  } finally {
+    generatingSlugs.value = false
+  }
+}
+
 
 const loadingCategories = ref(false)
 
@@ -606,24 +674,6 @@ async function handleLogout() {
   }
 }
 
-// Initialisation
-onMounted(async () => {
-  try {
-    // Récupérer l'utilisateur connecté
-    const user = await getCurrentUser()
-    if (user) {
-      currentUser.value = { email: user.email || 'Utilisateur connecté' }
-    } else {
-      router.push('/auth/login')
-      return
-    }
-    
-    // Charger les articles
-    await refreshArticles()
-  } catch (err: any) {
-    console.error('Error initializing dashboard:', err)
-  }
-})
 // ----- TAGS -----
 const tags = ref<any[]>([])
 const loadingTags = ref(false)
@@ -645,7 +695,7 @@ const refreshTags = async () => {
   }
 }
 
-// Initialisation
+// Initialisation unique
 onMounted(async () => {
   try {
     // Récupérer l'utilisateur connecté
@@ -656,9 +706,9 @@ onMounted(async () => {
       router.push('/auth/login')
       return
     }
-    // Charger les articles
+    
+    // Charger les données initiales
     await refreshArticles()
-    // Charger les tags
     await refreshTags()
     // NE PAS charger les catégories ici, uniquement au clic
   } catch (err: any) {

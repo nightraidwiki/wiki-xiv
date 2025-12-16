@@ -51,7 +51,7 @@
     </div>
     <div v-else class="row">
       <div class="col-12 col-lg-6 mb-4" v-for="article in filteredArticles" :key="article.id">
-      <NuxtLink :to="`/articles/${article.id}`" class="css_article_link">
+      <NuxtLink :to="`/articles/${article.slug || article.id}`" class="css_article_link">
         <article class="flex css_article_bloc">
           <img v-if="article.banner_url" :src="article.banner_url" class="css_banner_char">
           <div class="d-flex css_info_article">
