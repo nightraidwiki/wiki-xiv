@@ -4,13 +4,18 @@
     <nav class="nav">
       <div class="container">
         <div class="flex items-center justify-content-between nav-content">
-          <!-- Logo -->
-          <NuxtLink to="/" class="logo">
-            <img src="/public/logo_header.png" alt="Wiki XIV" class="" style="height: 60px;padding:10px 0;">
-          </NuxtLink>
+          <!-- Logo + Left Nav -->
+          <div class="flex items-center gap-4">
+            <NuxtLink to="/" class="logo">
+              <img src="/public/logo_header.png" alt="Wiki XIV" class="" style="height: 60px;padding:10px 0;">
+            </NuxtLink>
+            <NuxtLink to="/articles" class="btn-article">
+              Articles
+            </NuxtLink>
+          </div>
 
           <!-- Navigation Links -->
-          <div class="flex gap-4">
+          <div class="flex gap-4 items-center">
             <NuxtLink
               v-if="currentUser"
               to="/admin"
@@ -72,8 +77,14 @@ onMounted(async () => {
 }
 
 .nav {
-  background-color: var(--color-gray-850);
+  background-color: #121212;
   border-bottom: 1px solid rgba(75, 85, 99, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  width: 100%;
 }
 
 .nav-content {
@@ -95,6 +106,7 @@ onMounted(async () => {
 .main {
   padding: 2rem 1rem;
   flex: 1;
+  margin-top: 80px;
 }
 
 .footer {
@@ -135,4 +147,16 @@ onMounted(async () => {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #6b7280;
 }
-</style> 
+
+.btn-article {
+  color: #ea00ff;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s;
+}
+
+.btn-article:hover {
+  color: #ff80ff;
+}
+</style>

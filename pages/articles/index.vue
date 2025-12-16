@@ -1,5 +1,14 @@
 <template>
   <div class="container">
+      <div class="mb-4">
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="form-control search-input"
+          placeholder="Search for an article by name or tag..."
+        />
+      </div>
+
     <!-- Filtres combinés catégories + tags -->
     <div class="mb-4 d-flex flex-wrap align-items-center gap-2">
       <button
@@ -22,7 +31,25 @@
         @click="toggleTag(tag)"
       >{{ tag }}</button>
     </div>
-    <div class="row">
+    <div v-if="pending" class="row">
+      <div class="col-12 col-lg-6 mb-4" v-for="n in 6" :key="n">
+        <article class="flex css_article_bloc skeleton-bloc">
+          <div class="skeleton-shimmer"></div>
+          <div class="d-flex css_info_article h-100 w-100">
+             <div class="skeleton-icon flex-shrink-0"></div>
+             <div class="d-flex flex-column w-100">
+               <div class="skeleton-text skeleton-title"></div>
+               <div class="skeleton-text skeleton-date"></div>
+               <div class="d-flex mt-auto mb-4">
+                 <div class="skeleton-tag me-1"></div>
+                 <div class="skeleton-tag"></div>
+               </div>
+             </div>
+           </div>
+        </article>
+      </div>
+    </div>
+    <div v-else class="row">
       <div class="col-12 col-lg-6 mb-4" v-for="article in filteredArticles" :key="article.id">
       <NuxtLink :to="`/articles/${article.id}`" class="css_article_link">
         <article class="flex css_article_bloc">
@@ -48,7 +75,7 @@
 
 <script setup lang="ts">
 import { useSupabase } from '~/composables/useSupabase'
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 
 const { supabase } = useSupabase()
 
@@ -75,10 +102,9 @@ const { data: articles, pending, error } = useAsyncData('published_articles', as
   }))
 })
 
-import { ref, computed } from 'vue'
-
 const selectedCategories = ref<string[]>([])
 const selectedTags = ref<string[]>([])
+const searchQuery = ref('')
 
 const uniqueCategories = computed(() => {
   if (!articles.value) return []
@@ -106,17 +132,28 @@ function toggleTag(tag: string) {
 
 const filteredArticles = computed(() => {
   if (!articles.value) return []
-  // Aucun filtre : tout afficher
-  if (selectedCategories.value.length === 0 && selectedTags.value.length === 0) return articles.value
+  
   return articles.value.filter(article => {
+    // 1. Filter by Category
     const catOk = selectedCategories.value.length === 0 || selectedCategories.value.includes(article.category_name)
-    const tagOk = selectedTags.value.length === 0 || (article.tags && article.tags.some(tag => selectedTags.value.includes(tag)))
-    return catOk && tagOk
+    // 2. Filter by Tag
+    const tagOk = selectedTags.value.length === 0 || (article.tags && article.tags.some((tag: string) => selectedTags.value.includes(tag)))
+    
+    // 3. Filter by Search Query (Name or Tag)
+    let searchOk = true
+    if (searchQuery.value.trim()) {
+      const q = searchQuery.value.toLowerCase()
+      const titleMatch = article.title?.toLowerCase().includes(q)
+      const tagMatch = article.tags?.some((tag: string) => tag.toLowerCase().includes(q))
+      searchOk = titleMatch || tagMatch
+    }
+
+    return catOk && tagOk && searchOk
   })
 })
 
 
-function getCategoryIcon(category) {
+function getCategoryIcon(category: string) {
   if (!category) return '/categories/bg_article.png';
   // Slugify: minuscule, sans espaces, sans accents ni caractères spéciaux
   const slug = category
@@ -126,7 +163,7 @@ function getCategoryIcon(category) {
   return `/categories/${slug}.png`;
 }
 
-function formatDate(dateString) {
+function formatDate(dateString: string) {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleDateString('en-GB', {
@@ -200,4 +237,83 @@ function formatDate(dateString) {
   border-color: #8788ee !important;
 }
 
+.search-input {
+  background: transparent;
+  border: 1px solid #8788ee;
+  color: #fff;
+  border-radius: 4px;
+  padding: 10px 15px;
+}
+.search-input::placeholder {
+  color: #8788ee;
+  opacity: 0.7;
+}
+.search-input:focus {
+  background: rgba(135, 136, 238, 0.1);
+  border-color: #a259ec;
+  color: #fff;
+  box-shadow: 0 0 0 0.2rem rgba(135, 136, 238, 0.25);
+  outline: none;
+}
+
+/* Skeleton Styles */
+.skeleton-bloc {
+  background-image: none !important;
+  background-color: #1a1b1b;
+  border-color: #2b2c2c;
+  pointer-events: none;
+}
+
+.skeleton-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite linear;
+  z-index: 1;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.skeleton-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-right: 8px;
+  border-radius: 4px;
+}
+
+.skeleton-text {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-title {
+  height: 24px;
+  width: 70%;
+  margin-top: 4px;
+}
+
+.skeleton-date {
+  height: 14px;
+  width: 40%;
+}
+
+.skeleton-tag {
+  height: 20px;
+  width: 60px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
 </style>
