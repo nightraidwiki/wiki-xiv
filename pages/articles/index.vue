@@ -60,9 +60,9 @@
             <div class="d-flex flex-column">
               <h4>{{ article.title }}</h4>
               <span class="css_published_date">Published: {{ formatDate(article.created_at) }}</span>
-              <div class="d-flex mt-auto mb-4">
+              <div class="d-flex flex-wrap mt-auto mb-2 mb-md-4 gap-1">
                 <span class="tag">{{ article.category_name }}</span>
-                <span v-for="tag in article.tags" :key="tag" class="tag ms-1">{{ tag }}</span>
+                <span v-for="tag in article.tags" :key="tag" class="tag">{{ tag }}</span>
               </div>
             </div>
           </div>
@@ -315,5 +315,48 @@ function formatDate(dateString: string) {
   width: 60px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  /* Keep fixed height from desktop, just adjust internals */
+  
+  /* Narrower banner on mobile */
+  .css_article_bloc img.css_banner_char {
+    position: absolute; 
+    width: 80px;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    top: 0;
+    left: 0;
+  }
+
+  /* Adjust content margin to match narrower banner */
+  .css_info_article {
+    margin-left: 95px; /* 80px image + 15px gap */
+    padding-top: 10px;
+    padding-bottom: 5px;
+    width: auto; 
+    padding-right: 10px;
+    height: 100%; /* Ensure full height usage */
+  }
+
+  .css_article_bloc h4 {
+    font-size: 1rem; /* Smaller title on mobile */
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  .css_published_date {
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .tag {
+    font-size: 0.65rem;
+    padding: 0 4px;
+    line-height: 1.4;
+  }
 }
 </style>
