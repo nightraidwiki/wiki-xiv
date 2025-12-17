@@ -12,6 +12,9 @@
             <NuxtLink to="/articles" class="btn-article">
               Articles
             </NuxtLink>
+            <NuxtLink to="/repos" class="btn-article">
+              Repos
+            </NuxtLink>
           </div>
 
           <!-- Navigation Links -->

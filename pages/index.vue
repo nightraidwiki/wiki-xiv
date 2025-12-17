@@ -12,7 +12,7 @@
             <br></br>
             <br>
             Raidplan:
-            <a href="https://mczub.github.io/wtfdig/">https://mczub.github.io/wtfdig/</a>
+            <a href="https://wtfdig.info/">https://wtfdig.info/</a>
             <br>
             Discord time format: <a href="https://www.hammertime.cyou/">https://www.hammertime.cyou/</a>
           </p>
