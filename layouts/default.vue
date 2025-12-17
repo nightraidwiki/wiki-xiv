@@ -9,26 +9,60 @@
             <NuxtLink to="/" class="logo">
               <img src="/public/logo_header.png" alt="Wiki XIV" class="" style="height: 60px;padding:10px 0;">
             </NuxtLink>
-            <NuxtLink to="/articles" class="btn-article">
-              Articles
-            </NuxtLink>
-            <NuxtLink to="/repos" class="btn-article">
-              Repos
-            </NuxtLink>
+            <!-- Desktop Links -->
+            <div class="hidden-mobile flex items-center gap-4">
+              <NuxtLink to="/articles" class="btn-article">
+                Articles
+              </NuxtLink>
+              <NuxtLink to="/repos" class="btn-article">
+                Repos
+              </NuxtLink>
+            </div>
           </div>
 
-          <!-- Navigation Links -->
+          <!-- Navigation Links & Mobile Toggle -->
           <div class="flex gap-4 items-center">
-            <NuxtLink
-              v-if="currentUser"
-              to="/admin"
-              class="btn btn-primary"
-            >
-              Dashboard
-            </NuxtLink>
+            <!-- Desktop Dashboard -->
+            <div class="hidden-mobile">
+              <NuxtLink
+                v-if="currentUser"
+                to="/admin"
+                class="btn btn-primary"
+              >
+                Dashboard
+              </NuxtLink>
+            </div>
+
+            <!-- Mobile Burger Button -->
+            <button class="burger-btn hidden-desktop" @click="isMenuOpen = !isMenuOpen" aria-label="Menu">
+              <i class="bi" :class="isMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+            </button>
           </div>
         </div>
       </div>
+
+      <!-- Mobile Menu -->
+      <transition name="slide-fade">
+        <div v-if="isMenuOpen" class="mobile-menu">
+          <div class="container flex flex-col gap-2">
+            <NuxtLink to="/articles" class="mobile-link" @click="isMenuOpen = false">
+              Articles
+            </NuxtLink>
+            <NuxtLink to="/repos" class="mobile-link" @click="isMenuOpen = false">
+              Repos
+            </NuxtLink>
+            <div v-if="currentUser" class="border-t border-gray-700 my-2 pt-2">
+              <NuxtLink
+                to="/admin"
+                class="mobile-link text-primary"
+                @click="isMenuOpen = false"
+              >
+                Dashboard
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </transition>
     </nav>
 
     <!-- Main Content -->
@@ -50,6 +84,7 @@ import { ref, onMounted } from 'vue'
 import { useSupabase } from '~/composables/useSupabase'
 
 const currentUser = ref(null)
+const isMenuOpen = ref(false)
 
 onMounted(async () => {
   const { getCurrentUser, supabase } = useSupabase()
@@ -161,5 +196,98 @@ onMounted(async () => {
 
 .btn-article:hover {
   color: #ff80ff;
+}
+
+/* Mobile Menu Styles */
+.burger-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu {
+  background-color: #1a1a1a;
+  border-top: 1px solid rgba(75, 85, 99, 0.5);
+  padding: 1rem 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.mobile-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #e5e7eb;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  margin: 0 1rem;
+  transition: background-color 0.2s;
+}
+
+.mobile-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.mobile-link.text-primary {
+  color: #60a5fa;
+}
+
+.border-t {
+  border-top: 1px solid;
+}
+
+.border-gray-700 {
+  border-color: #374151;
+}
+
+.pt-2 {
+  padding-top: 0.5rem;
+}
+
+.my-2 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hidden-desktop {
+    display: none !important;
+  }
+}
+
+/* Slide Fade Transition for Mobile Menu */
+.slide-fade-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
 }
 </style>
