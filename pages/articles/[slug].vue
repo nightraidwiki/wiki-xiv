@@ -38,7 +38,7 @@ watch(article, (newArticle) => {
 
     const title = `${newArticle.title} - Wiki XIV`
     const url = `https://wiki-xiv.com/articles/${newArticle.slug || newArticle.id}`
-    const image = newArticle.banner_url || 'https://wiki-xiv.com/logo.png'
+    const image = newArticle.banner_url || 'https://wiki-xiv.com/logo_wiki.png'
 
     useSeoMeta({
       title,
@@ -73,7 +73,7 @@ watch(article, (newArticle) => {
               "name": "Wiki XIV",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://wiki-xiv.com/logo.png"
+                "url": "https://wiki-xiv.com/logo_wiki.png"
               }
             }
           })

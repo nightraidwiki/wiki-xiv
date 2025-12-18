@@ -13,7 +13,7 @@ useHead({
     { property: 'og:title', content: 'Wiki XIV' },
     { property: 'og:site_name', content: 'Wiki XIV' },
     { property: 'og:type', content: 'website' },
-    { property: 'og:image', content: '/logo.png' },
+    { property: 'og:image', content: '/logo_wiki.png' },
     { property: 'og:image:alt', content: 'Logo Wiki XIV' },
   ]
 })

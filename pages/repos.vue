@@ -49,7 +49,7 @@ useSeoMeta({
   description: 'Explore a curated collection of software repositories and plugins for Final Fantasy XIV, including tools for raiding, crafting, and QoL.',
   ogTitle: 'FFXIV Plugin Repositories & Tools - Wiki XIV',
   ogDescription: 'Find the best plugins and repositories for Final Fantasy XIV in our curated list.',
-  ogImage: '/logo.png',
+  ogImage: '/logo_wiki.png',
   twitterCard: 'summary_large_image',
 })
 

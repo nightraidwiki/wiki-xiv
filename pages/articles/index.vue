@@ -84,7 +84,7 @@ useSeoMeta({
   description: 'Browse our extensive collection of guides, technical articles, and documentation for Final Fantasy XIV.',
   ogTitle: 'FFXIV Articles & Documentation - Wiki XIV',
   ogDescription: 'Find the best guides and tools for Final Fantasy XIV in our article database.',
-  ogImage: '/logo.png',
+  ogImage: '/logo_wiki.png',
   twitterCard: 'summary_large_image',
 })
 

@@ -39,13 +39,13 @@ export default defineNuxtConfig({
         { property: 'og:site_name', content: 'Wiki XIV' },
         { property: 'og:title', content: 'Wiki XIV - Resources & Tools for FFXIV' },
         { property: 'og:description', content: 'Documentation, articles, and useful tools for Final Fantasy XIV players.' },
-        { property: 'og:image', content: '/logo.png' },
+        { property: 'og:image', content: '/logo_wiki.png' },
         { property: 'og:url', content: 'https://wiki-xiv.com' }, // Remplacer par l'URL réelle si connue
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Wiki XIV - Resources & Tools for FFXIV' },
         { name: 'twitter:description', content: 'Documentation, articles, and useful tools for Final Fantasy XIV players.' },
-        { name: 'twitter:image', content: '/logo.png' }
+        { name: 'twitter:image', content: '/logo_wiki.png' }
       ],
       script: [
         { src: '/richtexteditor/rte.js' },

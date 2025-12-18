@@ -64,7 +64,7 @@ useSeoMeta({
   description: 'A comprehensive collection of resources, documentation, and tools for Final Fantasy XIV, including raid planning, Discord integration, and plugin repositories.',
   ogTitle: 'Wiki XIV - Resources and Tools for FFXIV',
   ogDescription: 'Explore our database of FFXIV resources, plugins, and guides.',
-  ogImage: '/logo.png',
+  ogImage: '/logo_wiki.png',
   twitterCard: 'summary_large_image',
 })
 
