@@ -44,6 +44,13 @@
 </template>
 
 <script setup lang="ts">
+useSeoMeta({
+  title: 'Wiki XIV - Repositories',
+  ogTitle: 'Wiki XIV - Repositories',
+  description: 'A collection of useful software repositories and plugins for Final Fantasy XIV.',
+  ogDescription: 'A collection of useful software repositories and plugins for Final Fantasy XIV.',
+})
+
 interface RepoPlugin {
   name: string;
   description: string;

@@ -79,6 +79,13 @@ import { ref, computed } from 'vue'
 
 const { supabase } = useSupabase()
 
+useSeoMeta({
+  title: 'Wiki XIV - Articles',
+  ogTitle: 'Wiki XIV - Articles',
+  description: 'Explore our collection of articles and documentation for Final Fantasy XIV.',
+  ogDescription: 'Explore our collection of articles and documentation for Final Fantasy XIV.',
+})
+
 const { data: articles, pending, error } = useAsyncData('published_articles', async () => {
   // Charger articles et banners en parallèle
   const [articlesRes, bannersRes] = await Promise.all([

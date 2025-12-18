@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSupabase } from '~/composables/useSupabase'
 import { useRoute } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import type { User } from '@supabase/supabase-js'
 
 const { supabase } = useSupabase()
@@ -17,14 +17,35 @@ onMounted(async () => {
 const { data: article, pending, error } = useAsyncData(`article-${slug}`, async () => {
   const { data, error } = await supabase
     .from('articles')
-    .select('id, title, content') 
+    .select('id, title, content, banner_id, images_banner(image)') 
     .eq('slug', slug)
     .single()
 
   if (error) throw error
 
-  return data
+  return {
+    ...data,
+    banner_url: (data.images_banner as any)?.image || ''
+  }
 })
+
+// Dynamically set SEO metadata based on article data
+watch(article, (newArticle) => {
+  if (newArticle) {
+    const plainTextDescription = newArticle.content
+      ? newArticle.content.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+      : 'Read this article on Wiki XIV'
+
+    useSeoMeta({
+      title: `${newArticle.title} - Wiki XIV`,
+      ogTitle: `${newArticle.title} - Wiki XIV`,
+      description: plainTextDescription,
+      ogDescription: plainTextDescription,
+      ogImage: newArticle.banner_url || '/logo.png',
+      twitterCard: 'summary_large_image',
+    })
+  }
+}, { immediate: true })
 
 const selectedImage = ref<string | null>(null)
 

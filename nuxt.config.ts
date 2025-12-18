@@ -4,24 +4,24 @@ import { defineNuxtConfig } from 'nuxt/config'
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-  
+
   // Configuration PostCSS désactivée
   postcss: {
     plugins: {}
   },
-  
+
   // Modules
   modules: [
     '@pinia/nuxt'
   ],
-  
+
   // Fichiers CSS globaux
   css: [
     'bootstrap/dist/css/bootstrap.min.css',
     'bootstrap-icons/font/bootstrap-icons.css',
     '~/assets/css/main.css'
   ],
-  
+
   // Configuration de l'application
   app: {
     head: {
@@ -29,7 +29,14 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Documentation et articles sur divers sujets' }
+        { name: 'description', content: 'Documentation et articles sur divers sujets pour Final Fantasy XIV' },
+        // Open Graph / Facebook
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'Wiki XIV' },
+        { property: 'og:image', content: '/logo.png' },
+        // Twitter
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:image', content: '/logo.png' }
       ],
       script: [
         { src: '/richtexteditor/rte.js' },
@@ -43,7 +50,7 @@ export default defineNuxtConfig({
       ]
     }
   },
-  
+
   // Configuration d'exécution
   runtimeConfig: {
     public: {
@@ -51,7 +58,7 @@ export default defineNuxtConfig({
       supabaseKey: process.env.SUPABASE_KEY
     }
   },
-  
+
   // Configuration Vite
   vite: {
     css: {

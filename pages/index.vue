@@ -58,6 +58,15 @@
   </div>
 </template>
 
+<script setup lang="ts">
+useSeoMeta({
+  title: 'Wiki XIV - Home',
+  ogTitle: 'Wiki XIV - Home',
+  description: 'A gathering of resources and tools for Final Fantasy XIV including articles and repositories.',
+  ogDescription: 'A gathering of resources and tools for Final Fantasy XIV including articles and repositories.',
+})
+</script>
+
 <style scoped>
 .landing-page {
   /* On compense un peu le margin-top par défaut du layout si nécessaire */
