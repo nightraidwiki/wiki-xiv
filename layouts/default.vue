@@ -6,8 +6,9 @@
         <div class="flex items-center justify-content-between nav-content">
           <!-- Logo + Left Nav -->
           <div class="flex items-center gap-4">
-            <NuxtLink to="/" class="logo">
-              <img src="/public/logo_header.png" alt="Wiki XIV" class="" style="height: 60px;padding:10px 0;">
+            <NuxtLink to="/" class="logo-text-nav">
+              <span class="wiki">Wiki</span>
+              <span class="xiv">XIV</span>
             </NuxtLink>
             <!-- Desktop Links -->
             <div class="hidden-mobile flex items-center gap-4">
@@ -97,7 +98,7 @@ onMounted(async () => {
     currentUser.value = null
   }
   // Ecoute la déconnexion/reconnexion
-  supabase.auth.onAuthStateChange(async (_event, session) => {
+  supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
     if (session && session.user) {
       currentUser.value = session.user
     } else {
@@ -129,16 +130,29 @@ onMounted(async () => {
   height: 4rem;
 }
 
-.logo {
+.logo-text-nav {
   font-size: 1.5rem;
-  font-weight: bold;
-  color: #60a5fa;
-  transition: color 0.2s;
+  font-weight: 900;
+  text-decoration: none;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  display: flex;
+  gap: 0.25rem;
 }
 
-.logo:hover {
-  color: #93c5fd;
-  text-decoration: none;
+.logo-text-nav .wiki {
+  color: white;
+}
+
+.logo-text-nav .xiv {
+  background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.logo-text-nav:hover {
+  opacity: 0.8;
 }
 
 .main {
@@ -187,15 +201,39 @@ onMounted(async () => {
 }
 
 .btn-article {
-  color: #ea00ff;
-  font-weight: 500;
+  color: white;
+  font-weight: 600;
   text-decoration: none;
   padding: 0.5rem 1rem;
-  transition: color 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
 }
 
 .btn-article:hover {
-  color: #ff80ff;
+  background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transform: translateY(-1px);
+}
+
+.btn-article::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, #60a5fa, #a855f7);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.btn-article:hover::after {
+  width: 80%;
 }
 
 /* Mobile Menu Styles */
