@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap
-Sitemap: https://wiki-xiv.netlify.app/sitemap.xml
+Sitemap: https://wiki-xiv.com/sitemap.xml

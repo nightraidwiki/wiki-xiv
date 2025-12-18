@@ -33,16 +33,52 @@ const { data: article, pending, error } = useAsyncData(`article-${slug}`, async 
 watch(article, (newArticle) => {
   if (newArticle) {
     const plainTextDescription = newArticle.content
-      ? newArticle.content.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+      ? newArticle.content.replace(/<[^>]*>/g, '').substring(0, 160).trim() + '...'
       : 'Read this article on Wiki XIV'
 
+    const title = `${newArticle.title} - Wiki XIV`
+    const url = `https://wiki-xiv.com/articles/${newArticle.slug || newArticle.id}`
+    const image = newArticle.banner_url || 'https://wiki-xiv.com/logo.png'
+
     useSeoMeta({
-      title: `${newArticle.title} - Wiki XIV`,
-      ogTitle: `${newArticle.title} - Wiki XIV`,
+      title,
+      ogTitle: title,
       description: plainTextDescription,
       ogDescription: plainTextDescription,
-      ogImage: newArticle.banner_url || '/logo.png',
+      ogImage: image,
+      ogType: 'article',
+      ogUrl: url,
       twitterCard: 'summary_large_image',
+      twitterTitle: title,
+      twitterDescription: plainTextDescription,
+      twitterImage: image,
+    })
+
+    useHead({
+      link: [
+        { rel: 'canonical', href: url }
+      ],
+      script: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": newArticle.title,
+            "image": [image],
+            "description": plainTextDescription,
+            "url": url,
+            "publisher": {
+              "@type": "Organization",
+              "name": "Wiki XIV",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://wiki-xiv.com/logo.png"
+              }
+            }
+          })
+        }
+      ]
     })
   }
 }, { immediate: true })

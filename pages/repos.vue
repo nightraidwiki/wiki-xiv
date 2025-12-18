@@ -45,10 +45,27 @@
 
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Wiki XIV - Repositories',
-  ogTitle: 'Wiki XIV - Repositories',
-  description: 'A collection of useful software repositories and plugins for Final Fantasy XIV.',
-  ogDescription: 'A collection of useful software repositories and plugins for Final Fantasy XIV.',
+  title: 'FFXIV Plugin Repositories & Tools - Wiki XIV',
+  description: 'Explore a curated collection of software repositories and plugins for Final Fantasy XIV, including tools for raiding, crafting, and QoL.',
+  ogTitle: 'FFXIV Plugin Repositories & Tools - Wiki XIV',
+  ogDescription: 'Find the best plugins and repositories for Final Fantasy XIV in our curated list.',
+  ogImage: '/logo.png',
+  twitterCard: 'summary_large_image',
+})
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ItemPage",
+        "name": "Wiki XIV Repositories",
+        "description": "A collection of useful software repositories and plugins for Final Fantasy XIV.",
+        "url": "https://wiki-xiv.com/repos"
+      })
+    }
+  ]
 })
 
 interface RepoPlugin {

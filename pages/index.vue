@@ -60,10 +60,33 @@
 
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Wiki XIV - Home',
-  ogTitle: 'Wiki XIV - Home',
-  description: 'A gathering of resources and tools for Final Fantasy XIV including articles and repositories.',
-  ogDescription: 'A gathering of resources and tools for Final Fantasy XIV including articles and repositories.',
+  title: 'Wiki XIV - Resources and Tools for FFXIV',
+  description: 'A comprehensive collection of resources, documentation, and tools for Final Fantasy XIV, including raid planning, Discord integration, and plugin repositories.',
+  ogTitle: 'Wiki XIV - Resources and Tools for FFXIV',
+  ogDescription: 'Explore our database of FFXIV resources, plugins, and guides.',
+  ogImage: '/logo.png',
+  twitterCard: 'summary_large_image',
+})
+
+// Structured Data (JSON-LD)
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Wiki XIV",
+        "url": "https://wiki-xiv.com",
+        "description": "A gathering of resources and tools for Final Fantasy XIV",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://wiki-xiv.com/articles?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      })
+    }
+  ]
 })
 </script>
 

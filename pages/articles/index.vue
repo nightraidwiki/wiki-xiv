@@ -56,7 +56,7 @@
           <img v-if="article.banner_url" :src="article.banner_url" class="css_banner_char">
           <div class="d-flex css_info_article">
             <!-- Icône de la catégorie dynamique -->
-            <img :src="getCategoryIcon(article.category_name)" :alt="article.category_name" class="css_icon_article">
+            <img :src="getCategoryIcon(article.category_name)" :alt="`Category: ${article.category_name}`" class="css_icon_article">
             <div class="d-flex flex-column">
               <h4>{{ article.title }}</h4>
               <span class="css_published_date">Published: {{ formatDate(article.created_at) }}</span>
@@ -80,10 +80,27 @@ import { ref, computed } from 'vue'
 const { supabase } = useSupabase()
 
 useSeoMeta({
-  title: 'Wiki XIV - Articles',
-  ogTitle: 'Wiki XIV - Articles',
-  description: 'Explore our collection of articles and documentation for Final Fantasy XIV.',
-  ogDescription: 'Explore our collection of articles and documentation for Final Fantasy XIV.',
+  title: 'FFXIV Guides & Documentation - Wiki XIV',
+  description: 'Browse our extensive collection of guides, technical articles, and documentation for Final Fantasy XIV.',
+  ogTitle: 'FFXIV Articles & Documentation - Wiki XIV',
+  ogDescription: 'Find the best guides and tools for Final Fantasy XIV in our article database.',
+  ogImage: '/logo.png',
+  twitterCard: 'summary_large_image',
+})
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Wiki XIV Articles",
+        "description": "Collection of guides and documentation for Final Fantasy XIV",
+        "url": "https://wiki-xiv.com/articles"
+      })
+    }
+  ]
 })
 
 const { data: articles, pending, error } = useAsyncData('published_articles', async () => {
